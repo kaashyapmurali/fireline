@@ -1,0 +1,16 @@
+{
+  "fire": "fire_25294714",
+  "name": "Dixie Fire",
+  "year": 2021,
+  "check": {
+    "source": "NIFC WFIGS Interagency Fire Perimeters, incident 2021-CABTU-009205 (Plumas County, CA), 963,309 GIS acres",
+    "source_url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0",
+    "checked": "2026-11-02",
+    "detections_within_one_pixel_of_perimeter": 0.991,
+    "burned_pixels_inside_perimeter": 0.897,
+    "burned_area_acres_from_wsts_mask": 896180,
+    "first_wsts_detection": "2021-07-14",
+    "official_discovery_utc": "2021-07-14T00:15:02Z",
+    "method": "WSTS fire mask pixels (EPSG:32610) projected to WGS84 and tested against the repaired (make_valid) perimeter, with and without a 0.0045 degree (about one pixel) buffer"
+  }
+}

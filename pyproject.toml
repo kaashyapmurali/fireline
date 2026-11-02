@@ -1,0 +1,38 @@
+[project]
+name = "fireline"
+version = "0.1.0"
+description = "Next-day wildfire spread forecasting from satellite time series, with a JEPA feasibility study."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "LICENSES/*"]
+authors = [
+    { name = "Kaashyap Murali", email = "kaashyapmurali@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "numpy>=2.5.4",
+    "rasterio>=1.5.2",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+    "torch>=2.14.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.24,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+cloud = [
+    "modal==1.6.2",
+]
+notebook = [
+    "ipykernel>=7.4.0",
+    "matplotlib>=3.11.2",
+]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+]
+
+[tool.ruff]
+line-length = 120
