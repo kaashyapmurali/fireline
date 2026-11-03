@@ -98,10 +98,13 @@ against 0.196): 2021 has less fire far from the previous day's.
 
 ## Analysis: Where Tomorrow's Fire Comes From
 
-<p align="center"><img src="assets/rings.png" width="100%" alt="Share of tomorrow's fire and AP per method, by distance from today's fire."></p>
+<p align="center"><img src="assets/rings.png" width="100%" alt="Share of tomorrow's fire, AP and lift over chance per method, by distance from today's fire; baselines sit at 1× beyond 1.9 km."></p>
 
-Each ring further from today's fire roughly halves the model's AP. The baselines cannot reach fire more than 1.9 km
-away at all; the model can, but rarely does.
+Each ring further from today's fire roughly halves the model's AP, which shows absolute usefulness. **Lift** (AP
+divided by the ring's fire share; 1× is chance) shows skill relative to chance: on the test year the model is
+1.4× chance on pixels burning today, 2.9× within 750 m, and 5.7–8.6× at 0.75–3.75 km. The baselines cannot reach fire
+more than 1.9 km away at all, so their lift there is exactly 1×; the model can, but rarely does. Lift in the rarest
+rings rests on tiny fire shares and few pixels, so it is noisy.
 
 <p align="center"><img src="assets/days.png" width="100%" alt="F1 per test fire-day against the share of tomorrow's fire more than 1.9 km from today's, with pooled F1 per band."></p>
 

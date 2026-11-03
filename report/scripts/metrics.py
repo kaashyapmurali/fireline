@@ -37,7 +37,11 @@ def _best_last(curve: list[dict]) -> dict:
 def _metrics_row(metrics: dict) -> dict:
     keys = ("ap", "f1", "iou", "precision", "recall", "flagged_over_observed", "brier", "prevalence",
             "pixels", "positive_pixels")  # fmt: skip
-    return {k: metrics.get(k) for k in keys}
+    row = {k: metrics.get(k) for k in keys}
+    ap, prevalence = row["ap"], row["prevalence"]
+    row["lift"] = (ap / prevalence if ap is not None and prevalence is not None
+                   and np.isfinite(ap) and np.isfinite(prevalence) and 0 <= ap <= 1 and 0 < prevalence <= 1 else None)
+    return row
 
 
 def per_day(path: Path, min_fire: int = 10) -> dict:

@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "draft": false,
-  "source_commit": "1cda10f41d9906d63ce76080a8c8eb6f0edb33cc",
-  "built_at": "2026-11-03T17:54:31+00:00",
+  "source_commit": "88ac2bd05bc5c4778d0302e011477d9fa00dbfab",
+  "built_at": "2026-11-03T21:43:51+00:00",
   "files": {
     "images/explainer-day.png": {
       "sha256": "0b40388737c71350a5cab5d5426599f8609b59220f82ddaf2f3191c31aca4597",
@@ -1297,8 +1297,8 @@
       "bytes": 3635915
     },
     "site.json": {
-      "sha256": "0cadde071ccf4e1d50c4ed234f9070ca21cf8895b7e566fa4acf58abca5458e4",
-      "bytes": 320603
+      "sha256": "74f294f464c63f70929edd8a19d9753f131afd056b1bc03c306dae9f419ae429",
+      "bytes": 325573
     }
   }
 }

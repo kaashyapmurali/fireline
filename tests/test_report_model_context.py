@@ -55,3 +55,20 @@ def test_constant_brier_is_derived_from_saved_prevalence_and_keeps_model_scores(
     path.write_text(json.dumps({"samples": 7, "results": rows}))
     with pytest.raises(ValueError, match="prevalence"):
         metrics.rings(path, {"supervised": "best"})
+
+
+def test_ring_lift_is_ap_over_saved_ring_prevalence_and_baselines_sit_at_chance(tmp_path: Path) -> None:
+    ring = {"ap": 0.06, "prevalence": 0.02}
+    rows = {"persistence": {"6-10 px": {"ap": 0.02, "prevalence": 0.02}, "all": {"ap": 0.3, "prevalence": 0.2}},
+            "neighbourhood": {"6-10 px": {"ap": 0.02, "prevalence": 0.02}, "all": {"ap": 0.4, "prevalence": 0.2}},
+            "best": {"6-10 px": ring, "all": {"ap": 0.6, "prevalence": 0.2},
+                     "11-20 px": {"ap": None, "prevalence": 0.0}}}
+    path = tmp_path / "rings.json"
+    path.write_text(json.dumps({"samples": 1, "results": rows}))
+    arms = metrics.rings(path, {"supervised": "best"})["arms"]
+    assert arms["persistence"]["6-10 px"]["lift"] == pytest.approx(1.0)
+    assert arms["neighbourhood"]["6-10 px"]["lift"] == pytest.approx(1.0)
+    assert arms["supervised"]["6-10 px"]["lift"] == pytest.approx(3.0)
+    assert arms["supervised"]["6-10 px"]["ap"] == 0.06  # AP stays alongside lift
+    assert metrics._metrics_row({"ap": None, "prevalence": 0.1})["lift"] is None
+    assert metrics._metrics_row({"ap": 0.1, "prevalence": 0.0})["lift"] is None  # no 0/0 or division by zero
