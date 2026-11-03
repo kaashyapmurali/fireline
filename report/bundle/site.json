@@ -512,6 +512,11 @@
             "positive_pixels": 644306
           }
         }
+      },
+      "constant_prevalence_reference": {
+        "prevalence": 0.0024439715262178597,
+        "brier": 0.002437998529396896,
+        "note": "Constant at the observed evaluation-year fire share: hindsight reference, not a deployable forecast."
       }
     },
     "far_fire": {
@@ -789,6 +794,163 @@
   "model": {
     "parameters": 1508481,
     "encoder_parameters": 621824,
+    "context": {
+      "sources": {
+        "wsts": {
+          "label": "WSTS \u00b7 Table 5",
+          "title": "Gerard, Zhao and Sullivan. WildfireSpreadTS: A dataset of multi-modal time series for wildfire spread prediction. NeurIPS 2023 Datasets and Benchmarks.",
+          "url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/ebd545176bdaa9cd5d45954947bd74b7-Paper-Datasets_and_Benchmarks.pdf",
+          "note": "Counts for the All feature set as reported in the original paper; 12-fold cross-validation over years."
+        },
+        "wstsplus": {
+          "label": "WSTS+ paper \u00b7 Table 2",
+          "title": "Lahrichi, Bova, Johnson and Malof. Improved Wildfire Spread Prediction with Time-Series Data and the WSTS+ Benchmark. arXiv:2502.12003v3.",
+          "url": "https://arxiv.org/html/2502.12003v3#S5.T2",
+          "note": "Model counts in the WSTS+ paper's original-WSTS experiments; the extended WSTS+ benchmark uses four folds. Pretraining details: Section 8.4."
+        }
+      },
+      "models": [
+        {
+          "id": "res18-original",
+          "name": "Res18 U-Net",
+          "days": [
+            1,
+            5
+          ],
+          "parameters": [
+            14400000,
+            14700000
+          ],
+          "design": "ResNet-18 encoder; ImageNet initialisation; five-day inputs stacked as channels.",
+          "source": "wsts"
+        },
+        {
+          "id": "res18-updated",
+          "name": "Res18 U-Net (updated)",
+          "days": [
+            1,
+            5
+          ],
+          "parameters": [
+            14300000,
+            14400000
+          ],
+          "design": "ImageNet-pretrained encoder; updated training recipe; five-day inputs stacked as channels.",
+          "source": "wstsplus"
+        },
+        {
+          "id": "res50",
+          "name": "Res50 U-Net",
+          "days": [
+            1
+          ],
+          "parameters": [
+            32500000
+          ],
+          "design": "Larger ResNet-50 encoder; single-day input.",
+          "source": "wstsplus"
+        },
+        {
+          "id": "swin",
+          "name": "SwinUnet",
+          "days": [
+            1
+          ],
+          "parameters": [
+            27200000
+          ],
+          "design": "Swin-Tiny transformer encoder; single-day input.",
+          "source": "wstsplus"
+        },
+        {
+          "id": "segformer",
+          "name": "SegFormer",
+          "days": [
+            1
+          ],
+          "parameters": [
+            27500000
+          ],
+          "design": "SegFormer-B2 transformer encoder; single-day input.",
+          "source": "wstsplus"
+        },
+        {
+          "id": "utae",
+          "name": "UTAE",
+          "days": [
+            5
+          ],
+          "parameters": [
+            1100000
+          ],
+          "design": "Small encoder and temporal attention. The original and updated papers both report this size.",
+          "source": "wstsplus",
+          "also_source": "wsts"
+        },
+        {
+          "id": "utae-res18",
+          "name": "UTAE (ResNet-18)",
+          "days": [
+            5
+          ],
+          "parameters": [
+            14600000
+          ],
+          "design": "Pretrained ResNet-18 encoder with temporal attention; strongest overall model in the WSTS+ paper.",
+          "source": "wstsplus"
+        },
+        {
+          "id": "convlstm",
+          "name": "ConvLSTM",
+          "days": [
+            5
+          ],
+          "parameters": [
+            240000
+          ],
+          "design": "Convolutional recurrent model.",
+          "source": "wsts"
+        }
+      ],
+      "attention_comparison": {
+        "source": "wstsplus",
+        "evaluation_dataset": "original WSTS",
+        "feature_sets": [
+          "Veg",
+          "Multi",
+          "All"
+        ],
+        "five_day_stacked_res18_ap": [
+          0.472,
+          0.469,
+          0.46
+        ],
+        "five_day_utae_res18_ap": [
+          0.478,
+          0.477,
+          0.475
+        ],
+        "note": "Whole-model comparisons, not an isolated attention ablation. Table 5 of the same paper evaluates WSTS+ but does not include five-day stacked Res18; do not describe these deltas as measured on WSTS+.",
+        "gain_min": 0.006000000000000005,
+        "gain_max": 0.014999999999999958
+      },
+      "seed_check": {
+        "year": 2020,
+        "n": 3,
+        "aps": [
+          0.4580916276306731,
+          0.459055272192924,
+          0.45311916064498253
+        ],
+        "mean_ap": 0.45675535348952656,
+        "sd_ap": 0.0031856830527571046,
+        "sources": [
+          "v2-seed-1/rings-2020.json",
+          "v2-seed-2/rings-2020.json"
+        ],
+        "note": "Three supervised baseline seeds, not JEPA seed noise."
+      }
+    },
     "probe_trainable_parameters": 886657,
     "widths": [
       32,
@@ -4499,6 +4661,11 @@
             "positive_pixels": 644306
           }
         }
+      },
+      "constant_prevalence_reference": {
+        "prevalence": 0.0024439715262178597,
+        "brier": 0.002437998529396896,
+        "note": "Constant at the observed evaluation-year fire share: hindsight reference, not a deployable forecast."
       }
     },
     "criteria": {
@@ -5381,6 +5548,11 @@
             "positive_pixels": 742631
           }
         }
+      },
+      "constant_prevalence_reference": {
+        "prevalence": 0.0029143561501595075,
+        "brier": 0.002905862678389535,
+        "note": "Constant at the observed evaluation-year fire share: hindsight reference, not a deployable forecast."
       }
     },
     "far_fire": {
@@ -17088,9 +17260,9 @@
     ],
     "filmstrip_rule": "start: first day with at least 50 fire pixels tomorrow; largest day: most fire tomorrow; among days with at least 500 pixels tomorrow, best: highest F1, typical: median F1; shown in date order",
     "model_view": {
-      "t": 41,
-      "date": "2021-08-18",
-      "next_date": "2021-08-19",
+      "t": 50,
+      "date": "2021-08-27",
+      "next_date": "2021-08-28",
       "inputs": [
         {
           "key": "active_fire",
@@ -17102,7 +17274,7 @@
           "key": "ndvi",
           "label": "Vegetation (NDVI)",
           "file": "model-input-ndvi.png",
-          "missing": true
+          "missing": false
         },
         {
           "key": "energy_release_component",
@@ -17118,7 +17290,7 @@
         },
         {
           "key": "wind_speed",
-          "label": "Wind speed",
+          "label": "Wind speed + direction",
           "file": "model-input-wind-speed.png",
           "missing": false
         },
@@ -17144,13 +17316,790 @@
         "model-features-coarse-day4.png"
       ],
       "fused": "model-fused.png",
+      "architecture": {
+        "crop_px": 128,
+        "history": 5,
+        "batch_omitted": true,
+        "dynamic_shape": [
+          5,
+          18,
+          128,
+          128
+        ],
+        "static_shape": [
+          21,
+          128,
+          128
+        ],
+        "folded_shape": [
+          5,
+          39,
+          128,
+          128
+        ],
+        "scales": [
+          {
+            "index": 0,
+            "name": "full",
+            "factor": 1,
+            "pixel_m": 375,
+            "cin": 39,
+            "channels": 32,
+            "stride": 1,
+            "encoder_shape": [
+              5,
+              32,
+              128,
+              128
+            ],
+            "shape": [
+              32,
+              128,
+              128
+            ],
+            "parameters": 21888,
+            "fusion_in": 160,
+            "fusion_out": 32,
+            "fusion_parameters": 5216,
+            "features_today": "model-features-full-day4.png",
+            "fused_file": "model-fused-full.png"
+          },
+          {
+            "index": 1,
+            "name": "half",
+            "factor": 2,
+            "pixel_m": 750,
+            "cin": 32,
+            "channels": 64,
+            "stride": 2,
+            "encoder_shape": [
+              5,
+              64,
+              64,
+              64
+            ],
+            "shape": [
+              64,
+              64,
+              64
+            ],
+            "parameters": 57728,
+            "fusion_in": 320,
+            "fusion_out": 64,
+            "fusion_parameters": 20672,
+            "features_today": "model-features-half-today.png",
+            "fused_file": "model-fused-half.png"
+          },
+          {
+            "index": 2,
+            "name": "quarter",
+            "factor": 4,
+            "pixel_m": 1500,
+            "cin": 64,
+            "channels": 128,
+            "stride": 2,
+            "encoder_shape": [
+              5,
+              128,
+              32,
+              32
+            ],
+            "shape": [
+              128,
+              32,
+              32
+            ],
+            "parameters": 230144,
+            "fusion_in": 640,
+            "fusion_out": 128,
+            "fusion_parameters": 82304,
+            "features_today": "model-features-quarter-today.png",
+            "fused_file": "model-fused-quarter.png"
+          },
+          {
+            "index": 3,
+            "name": "coarse",
+            "factor": 8,
+            "pixel_m": 3000,
+            "cin": 128,
+            "channels": 128,
+            "stride": 2,
+            "encoder_shape": [
+              5,
+              128,
+              16,
+              16
+            ],
+            "shape": [
+              128,
+              16,
+              16
+            ],
+            "parameters": 312064,
+            "fusion_in": 640,
+            "fusion_out": 128,
+            "fusion_parameters": 82304,
+            "features_today": "model-features-coarse-day4.png",
+            "fused_file": "model-fused.png"
+          }
+        ],
+        "decoder": [
+          {
+            "index": 2,
+            "name": "quarter",
+            "up_channels": 128,
+            "skip_channels": 128,
+            "concat_channels": 256,
+            "shape": [
+              128,
+              32,
+              32
+            ],
+            "parameters": 475904,
+            "file": "model-decoder-quarter.png"
+          },
+          {
+            "index": 1,
+            "name": "half",
+            "up_channels": 128,
+            "skip_channels": 64,
+            "concat_channels": 192,
+            "shape": [
+              64,
+              64,
+              64
+            ],
+            "parameters": 160128,
+            "file": "model-decoder-half.png"
+          },
+          {
+            "index": 0,
+            "name": "full",
+            "up_channels": 64,
+            "skip_channels": 32,
+            "concat_channels": 96,
+            "shape": [
+              32,
+              128,
+              128
+            ],
+            "parameters": 40128,
+            "file": "model-decoder-full.png"
+          }
+        ],
+        "head": {
+          "mask_shape": [
+            1,
+            128,
+            128
+          ],
+          "concat_channels": 33,
+          "features_shape": [
+            32,
+            128,
+            128
+          ],
+          "logit_shape": [
+            1,
+            128,
+            128
+          ],
+          "probability_shape": [
+            128,
+            128
+          ],
+          "block_parameters": 19968,
+          "projection_parameters": 33
+        },
+        "first_block_count": {
+          "conv1": 11232,
+          "conv2": 9216,
+          "projection": 1248,
+          "normalisation": 192
+        },
+        "budget": {
+          "encoder": 621824,
+          "fusion": 190496,
+          "decoder": 676160,
+          "head": 20001,
+          "total": 1508481
+        }
+      },
+      "gallery": [
+        {
+          "name": "Fire",
+          "tiles": [
+            {
+              "key": "active_fire",
+              "name": "Active fire",
+              "source": "VIIRS VNP14IMG",
+              "resolution": "375 m \u00b7 daily",
+              "unit": "0/1",
+              "file": "gallery-active-fire.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 0.0,
+              "max": 1.0,
+              "stretch_min": 0.0,
+              "stretch_max": 0.0,
+              "legend": [],
+              "ranges": []
+            }
+          ]
+        },
+        {
+          "name": "Satellite",
+          "tiles": [
+            {
+              "key": "viirs_i1",
+              "name": "Red (I1)",
+              "source": "VIIRS VNP09GA",
+              "resolution": "500 m \u00b7 daily",
+              "unit": "reflectance",
+              "file": "gallery-viirs-i1.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.009999999776482582,
+              "max": 0.5464000105857849,
+              "stretch_min": -0.007600000128149986,
+              "stretch_max": 0.2800000011920929,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "viirs_i2",
+              "name": "Near infrared (I2)",
+              "source": "VIIRS VNP09GA",
+              "resolution": "500 m \u00b7 daily",
+              "unit": "reflectance",
+              "file": "gallery-viirs-i2.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.009999999776482582,
+              "max": 0.5952000021934509,
+              "stretch_min": 0.06520000100135803,
+              "stretch_max": 0.3070000112056732,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "viirs_m11",
+              "name": "Shortwave infrared (M11)",
+              "source": "VIIRS VNP09GA",
+              "resolution": "1 km \u00b7 daily",
+              "unit": "reflectance",
+              "file": "gallery-viirs-m11.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.0052999998442828655,
+              "max": 1.3904000520706177,
+              "stretch_min": 0.01860000006854534,
+              "stretch_max": 0.2020999938249588,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "false_colour",
+              "name": "False colour (M11, I2, I1 \u2192 RGB)",
+              "source": "VIIRS VNP09GA",
+              "resolution": "500 m / 1 km \u00b7 daily",
+              "unit": "reflectance",
+              "file": "gallery-false-colour.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.009999999776482582,
+              "max": 1.3904000520706177,
+              "stretch_min": 0.004900000058114529,
+              "stretch_max": 0.2879999876022339,
+              "legend": [],
+              "ranges": [
+                {
+                  "band": "R: M11",
+                  "missing": false,
+                  "coverage": 1.0,
+                  "uniform": false,
+                  "min": -0.0052999998442828655,
+                  "max": 1.3904000520706177,
+                  "stretch_min": 0.01860000006854534,
+                  "stretch_max": 0.2020999938249588
+                },
+                {
+                  "band": "G: I2",
+                  "missing": false,
+                  "coverage": 1.0,
+                  "uniform": false,
+                  "min": -0.009999999776482582,
+                  "max": 0.5952000021934509,
+                  "stretch_min": 0.06520000100135803,
+                  "stretch_max": 0.3070000112056732
+                },
+                {
+                  "band": "B: I1",
+                  "missing": false,
+                  "coverage": 1.0,
+                  "uniform": false,
+                  "min": -0.009999999776482582,
+                  "max": 0.5464000105857849,
+                  "stretch_min": -0.007600000128149986,
+                  "stretch_max": 0.2800000011920929
+                }
+              ]
+            },
+            {
+              "key": "ndvi",
+              "name": "NDVI",
+              "source": "VIIRS VNP13A1",
+              "resolution": "500 m \u00b7 16-day composite, updated every 8 days",
+              "unit": "index",
+              "file": "gallery-ndvi.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.4875999987125397,
+              "max": 0.9991999864578247,
+              "stretch_min": 0.03310000151395798,
+              "stretch_max": 0.8303999900817871,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "evi2",
+              "name": "EVI2",
+              "source": "VIIRS VNP13A1",
+              "resolution": "500 m \u00b7 16-day composite, updated every 8 days",
+              "unit": "index",
+              "file": "gallery-evi2.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.10999999940395355,
+              "max": 0.6723999977111816,
+              "stretch_min": 0.016148000508546832,
+              "stretch_max": 0.37439998984336853,
+              "legend": [],
+              "ranges": []
+            }
+          ]
+        },
+        {
+          "name": "Observed weather",
+          "tiles": [
+            {
+              "key": "temperature_min",
+              "name": "Minimum temperature",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily",
+              "unit": "\u00b0C",
+              "file": "gallery-temperature-min.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 1.600006103515625,
+              "max": 22.850006103515625,
+              "stretch_min": 3.350006103515625,
+              "stretch_max": 20.350006103515625,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "temperature_max",
+              "name": "Maximum temperature",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily",
+              "unit": "\u00b0C",
+              "file": "gallery-temperature-max.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 20.350006103515625,
+              "max": 34.350006103515625,
+              "stretch_min": 23.350006103515625,
+              "stretch_max": 32.600006103515625,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "specific_humidity",
+              "name": "Specific humidity",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily",
+              "unit": "kg/kg",
+              "file": "gallery-specific-humidity.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 0.0028896331787109375,
+              "max": 0.004619598388671875,
+              "stretch_min": 0.003200531005859375,
+              "stretch_max": 0.00434112548828125,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "precipitation",
+              "name": "Precipitation",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily",
+              "unit": "mm/day",
+              "file": "gallery-precipitation.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": true,
+              "min": 0.0,
+              "max": 0.0,
+              "stretch_min": 0.0,
+              "stretch_max": 0.0,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "energy_release_component",
+              "name": "Energy release component",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily",
+              "unit": "index",
+              "file": "gallery-energy-release-component.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 79.0,
+              "max": 102.0,
+              "stretch_min": 83.0,
+              "stretch_max": 100.0,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "pdsi",
+              "name": "Palmer drought severity (PDSI)",
+              "source": "GRIDMET drought",
+              "resolution": "4.6 km \u00b7 5-day index",
+              "unit": "index",
+              "file": "gallery-pdsi.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -8.0703125,
+              "max": -2.3203125,
+              "stretch_min": -6.76171875,
+              "stretch_max": -3.169921875,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "wind_speed",
+              "name": "Wind speed + direction",
+              "source": "GRIDMET",
+              "resolution": "4.6 km \u00b7 daily mean",
+              "unit": "m/s",
+              "file": "gallery-wind-speed.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 3.30078125,
+              "max": 4.8984375,
+              "stretch_min": 3.5,
+              "stretch_max": 4.80078125,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "wind_u",
+              "name": "Eastward wind (u)",
+              "source": "GRIDMET \u00b7 derived",
+              "resolution": "4.6 km \u00b7 daily mean",
+              "unit": "m/s",
+              "file": "gallery-wind-u.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -3.6968977451324463,
+              "max": 1.079940676689148,
+              "stretch_min": -3.4922003746032715,
+              "stretch_max": 0.3762623071670532,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "wind_v",
+              "name": "Northward wind (v)",
+              "source": "GRIDMET \u00b7 derived",
+              "resolution": "4.6 km \u00b7 daily mean",
+              "unit": "m/s",
+              "file": "gallery-wind-v.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -4.677737712860107,
+              "max": -2.5852973461151123,
+              "stretch_min": -4.2589263916015625,
+              "stretch_max": -2.7972586154937744,
+              "legend": [],
+              "ranges": []
+            }
+          ]
+        },
+        {
+          "name": "Forecast weather",
+          "tiles": [
+            {
+              "key": "forecast_temperature",
+              "name": "Forecast temperature",
+              "source": "GFS 00 UTC",
+              "resolution": "~28 km \u00b7 hours 1\u201324 mean",
+              "unit": "\u00b0C",
+              "file": "gallery-forecast-temperature.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 17.28125,
+              "max": 25.609375,
+              "stretch_min": 17.28125,
+              "stretch_max": 25.609375,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "forecast_specific_humidity",
+              "name": "Forecast specific humidity",
+              "source": "GFS 00 UTC",
+              "resolution": "~28 km \u00b7 hours 1\u201324 mean",
+              "unit": "kg/kg",
+              "file": "gallery-forecast-specific-humidity.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 0.00279998779296875,
+              "max": 0.0034008026123046875,
+              "stretch_min": 0.002887725830078125,
+              "stretch_max": 0.0034008026123046875,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "forecast_precipitation",
+              "name": "Forecast precipitation",
+              "source": "GFS 00 UTC",
+              "resolution": "~28 km \u00b7 archive total over hours 1\u201324",
+              "unit": "mm",
+              "file": "gallery-forecast-precipitation.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": true,
+              "min": 0.0,
+              "max": 0.0,
+              "stretch_min": 0.0,
+              "stretch_max": 0.0,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "forecast_wind_speed",
+              "name": "Forecast wind speed",
+              "source": "GFS 00 UTC",
+              "resolution": "~28 km \u00b7 speed of hours 1\u201324 mean vector",
+              "unit": "m/s",
+              "file": "gallery-forecast-wind-speed.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 0.406982421875,
+              "max": 2.39453125,
+              "stretch_min": 0.406982421875,
+              "stretch_max": 2.39453125,
+              "legend": [],
+              "ranges": []
+            }
+          ]
+        },
+        {
+          "name": "Terrain and land",
+          "tiles": [
+            {
+              "key": "elevation",
+              "name": "Elevation",
+              "source": "SRTMGL1 v003",
+              "resolution": "30 m \u00b7 static",
+              "unit": "m",
+              "file": "gallery-elevation.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 346.0,
+              "max": 3124.0,
+              "stretch_min": 901.0,
+              "stretch_max": 2212.0,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "slope",
+              "name": "Slope",
+              "source": "SRTM \u00b7 derived",
+              "resolution": "30 m \u00b7 static",
+              "unit": "\u00b0",
+              "file": "gallery-slope.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 0.0,
+              "max": 36.40625,
+              "stretch_min": 0.10150146484375,
+              "stretch_max": 24.828125,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "aspect",
+              "name": "Aspect / downslope direction",
+              "source": "SRTM \u00b7 derived",
+              "resolution": "30 m \u00b7 static",
+              "unit": "\u00b0 clockwise from north",
+              "file": "gallery-aspect.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.0,
+              "max": 359.75,
+              "stretch_min": 0.0,
+              "stretch_max": 350.75,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "downslope_east",
+              "name": "Eastward downslope component",
+              "source": "SRTM \u00b7 derived",
+              "resolution": "30 m \u00b7 static",
+              "unit": "unitless",
+              "file": "gallery-downslope-east.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.6833709478378296,
+              "max": 0.674186646938324,
+              "stretch_min": -0.3164003324508667,
+              "stretch_max": 0.3036090028285981,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "downslope_north",
+              "name": "Northward downslope component",
+              "source": "SRTM \u00b7 derived",
+              "resolution": "30 m \u00b7 static",
+              "unit": "unitless",
+              "file": "gallery-downslope-north.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": -0.6610086560249329,
+              "max": 0.7114095091819763,
+              "stretch_min": -0.28722177624702455,
+              "stretch_max": 0.3009419083595276,
+              "legend": [],
+              "ranges": []
+            },
+            {
+              "key": "landcover",
+              "name": "Land cover (IGBP)",
+              "source": "MODIS MCD12Q1.061",
+              "resolution": "500 m \u00b7 annual, held static",
+              "unit": "class ID",
+              "file": "gallery-landcover.png",
+              "missing": false,
+              "coverage": 1.0,
+              "uniform": false,
+              "min": 1.0,
+              "max": 17.0,
+              "stretch_min": 1.0,
+              "stretch_max": 16.0,
+              "legend": [
+                {
+                  "code": 1,
+                  "label": "Evergreen needleleaf forest",
+                  "colour": "#05450a"
+                },
+                {
+                  "code": 4,
+                  "label": "Deciduous broadleaf forest",
+                  "colour": "#78d203"
+                },
+                {
+                  "code": 5,
+                  "label": "Mixed forest",
+                  "colour": "#009900"
+                },
+                {
+                  "code": 6,
+                  "label": "Closed shrubland",
+                  "colour": "#c6b044"
+                },
+                {
+                  "code": 7,
+                  "label": "Open shrubland",
+                  "colour": "#dcd159"
+                },
+                {
+                  "code": 8,
+                  "label": "Woody savanna",
+                  "colour": "#dade48"
+                },
+                {
+                  "code": 9,
+                  "label": "Savanna",
+                  "colour": "#fbff13"
+                },
+                {
+                  "code": 10,
+                  "label": "Grassland",
+                  "colour": "#b6ff05"
+                },
+                {
+                  "code": 11,
+                  "label": "Permanent wetland",
+                  "colour": "#27ff87"
+                },
+                {
+                  "code": 12,
+                  "label": "Cropland",
+                  "colour": "#c24f44"
+                },
+                {
+                  "code": 13,
+                  "label": "Urban / built-up",
+                  "colour": "#a5a5a5"
+                },
+                {
+                  "code": 16,
+                  "label": "Barren",
+                  "colour": "#f9ffa4"
+                },
+                {
+                  "code": 17,
+                  "label": "Water",
+                  "colour": "#1c0dff"
+                }
+              ],
+              "ranges": []
+            }
+          ]
+        }
+      ],
       "input_dates": [
-        "2021-08-14",
-        "2021-08-15",
-        "2021-08-16",
-        "2021-08-17",
-        "2021-08-18"
-      ]
+        "2021-08-23",
+        "2021-08-24",
+        "2021-08-25",
+        "2021-08-26",
+        "2021-08-27"
+      ],
+      "selection_rule": "timeline day nearest in calendar days to the filmstrip's median-F1 typical day; each of five input days must have at least 50% finite pixels in every NDVI, EVI2 and VIIRS reflectance channel inside the timeline crop; today's ERC, max temperature, wind speed/direction and elevation must also have at least 50% finite pixels each; ties go to the earlier date; fail if none qualifies. Finite coverage is not a cloud-quality guarantee. The threshold explainer stays on the typical day.",
+      "reference_typical_t": 41
     },
     "explainer": {
       "t": 41,

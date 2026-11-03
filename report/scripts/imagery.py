@@ -20,6 +20,7 @@ import numpy as np
 import torch
 import views
 from PIL import Image, ImageDraw, ImageFont
+from samples import MODEL_DAY_RULE, select_model_day
 
 from fireline.data.cache import materialize
 from fireline.data.convert import load_fire
@@ -227,13 +228,16 @@ def build(per_sample_report: Path, data_dir: Path, year: int, checkpoint: Path, 
     npz = data_dir / str(year) / f"{fire_id}.npz"
     if not npz.exists():
         raise FileNotFoundError(f"{npz} missing: download it from the volume (processed/wsts/{year}/{fire_id}.npz).")
-    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
+    device = torch.device("cpu")
     layers = bundle / "images"
     timeline, probs, shade = render_timeline(npz, checkpoint, stats, layers, cache, device)
     timeline.update(write_gif_and_filmstrip(timeline, layers, bundle / "images"))
     typical = timeline["filmstrip_days"][timeline["filmstrip_roles"].index("typical")]
-    timeline["model_view"] = views.render_model(npz, checkpoint, stats, cache, typical, timeline["crop_box"], layers,
+    model_day = select_model_day(load_fire(npz), sorted(probs), typical, timeline["crop_box"])
+    timeline["model_view"] = views.render_model(npz, checkpoint, stats, cache, model_day, timeline["crop_box"], layers,
                                                 shade)  # fmt: skip
+    timeline["model_view"]["selection_rule"] = MODEL_DAY_RULE
+    timeline["model_view"]["reference_typical_t"] = typical
     timeline["explainer"] = views.render_explainer(npz, probs[typical], typical, timeline["crop_box"], layers)
     timeline["selection_rule"] = (f"fire with the most target days having at least {MIN_DAY_FIRE} fire pixels "
                                   "tomorrow; ties to the larger total fire")  # fmt: skip

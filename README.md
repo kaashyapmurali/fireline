@@ -52,7 +52,33 @@ A U-Net with an encoder that reads one day at a time (four residual stages, 32�
 a 1 × 1 convolution that fuses the five days at each scale, and a decoder that also receives today's fire mask at full
 resolution. 1.5M parameters, trained with binary cross-entropy + soft Dice on 128 × 128 crops biased towards fire.
 
-<p align="center"><img src="assets/architecture.jpg" width="100%" alt="The model on one Dixie Fire sample: inputs, the shared per-day encoder with its feature maps, fusion over days, and the decoder with the output overlay."></p>
+This is a deliberately small prototype, roughly a tenth of the size of the benchmark's Res18 U-Net and close in
+scale to its small UTAE. The table shows **size and design, not a leaderboard**: the papers average over held-out
+years (12 folds for WSTS, four for WSTS+), while this project uses one chronological split (validation 2020,
+test 2021). No AP values are compared across rows. Counts are from
+[Gerard et al., Table 5](https://proceedings.neurips.cc/paper_files/paper/2023/file/ebd545176bdaa9cd5d45954947bd74b7-Paper-Datasets_and_Benchmarks.pdf)
+and [Lahrichi et al., Table 2](https://arxiv.org/html/2502.12003v3#S5.T2); this project's count comes from the bundle.
+
+<p align="center"><img src="assets/model-size.png" width="100%" alt="Model size and design: the small Fireline prototype, benchmark ResNet U-Nets, transformers, UTAE and ConvLSTM. Sizes are sourced; scores are deliberately not compared."></p>
+
+Supervised training uses **one output loss**, binary cross-entropy + soft Dice with equal weights over valid
+(non-padding) pixels, computed in float32 and backpropagated through the whole model. The shared encoder receives
+gradients from all five days; it has no separate supervised loss. Dice is differentiable F1-style overlap: it ignores
+true negatives but penalises false alarms. BCE scores probability errors; adding Dice does not guarantee calibration.
+The figure below reads the saved AdamW settings, warm-up/cosine schedule, gradient clipping, batch size and epoch
+count from the bundle. The checkpoint is chosen by **validation AP**, not training loss. Only the separate JEPA
+pretraining phase has a representation objective; the frozen-encoder probe uses the same BCE + Dice.
+
+<p align="center"><img src="assets/training-loss.png" width="100%" alt="The single output loss: BCE and batch-global soft Dice formulas, Dice's derivation from F1, valid-pixel masking, smoothing, end-to-end gradients, optimiser and validation-AP checkpoint selection."></p>
+
+Each sample has **18 daily channels over five days**, plus **21 static channels** (including 17 one-hot land-cover
+classes). The shared encoder reads 18 + 21 = 39 channels per day: days are folded into the batch, not stacked into
+195 input channels. The walk-through shows all daily inputs, separate static views, daily-mean wind arrows,
+physical-value ranges, encoder features at all four scales, fused and decoder maps, and tensor shapes and parameter
+counts from the model. Its example is the Dixie Fire on **27 August 2021 → 28 August**, with inputs from 23–27 August,
+chosen by the same fixed input-coverage rule as the website report.
+
+<p align="center"><img src="assets/architecture.jpg" width="100%" alt="All daily and static inputs for one Dixie Fire sample, tensor shapes, the shared per-day encoder and residual blocks, four feature scales, temporal fusion, U-Net skip connections, decoder maps and the fire-mask prediction head."></p>
 
 The per-day encoder lets a pretrained encoder be swapped in and frozen without changing anything else (the JEPA
 experiment). The direct path for today's fire mask gives the model the strong prior that most fire stays where it is.
@@ -99,9 +125,11 @@ ignore what is unpredictable (clouds, sensor noise) instead of reconstructing pi
 
 <p align="center"><img src="assets/jepa-setup.png" width="100%" alt="Pretraining: the per-day encoder and a predictor forecast tomorrow's latent grid from a moving-average target encoder; then the encoder is frozen and the spread model's fusion and decoder are trained on fire labels."></p>
 
-Three variants were pretrained on 2018–2019: **JEPA-next** predicts tomorrow's latent map, **JEPA-weighted** the
-same with the loss focused on cells where the fire changes, and **JEPA-change** the change from today's latent, with
-the loss divided by that of predicting no change. Viability gates were fixed before any result: no collapse, a
+Three variants were pretrained on 2018–2019: **JEPA-next** predicts tomorrow's latent map; **JEPA-change** predicts
+the change from today's latent, with the loss divided by that of predicting no change. Both weight cells near fire
+today or tomorrow. **JEPA-weighted** predicts tomorrow's latent map but emphasises cells where the fire changes.
+All three use fire-weighted latent prediction plus variance/covariance regularisation. Viability gates were fixed
+before any result: no collapse, a
 predictor at least 10% better than copying today's latent near the fire, and a frozen-encoder AP within 0.03 of the
 supervised model on validation (0.43 or more).
 
@@ -153,9 +181,29 @@ training converge faster without changing where it ends.
   visible cause.
 - **Vegetation from the future, or missing.** See the leak above; some days have no composite.
 - **Noisy labels.** Detections, not burned area: low-intensity fire is missed and the same ground can flare again.
-- **Few fires, one run per arm.** Differences below about 0.03 AP are not resolved.
+- **Few fires, most arms have one run.** The supervised-baseline seed check below does not establish JEPA's
+  run-to-run variance; small representation gains still need several seeds per arm.
+- **Probability calibration is unchecked.** The model ranks much better by AP, but its test-year Brier score is
+  slightly worse than the neighbourhood baseline's (the ordering reverses on validation). Overconfidence is
+  plausible, not established: no reliability diagram or calibration-error check was made, and Brier alone cannot
+  diagnose calibration. The table below reads the saved results; its constant-fire-share row is a hindsight reference.
 
-<p align="center"><img src="assets/next-steps.png" width="100%" alt="Next steps for far fire: train on far fire with the current data, add fire intensity, hourly weather, geostationary detections and lightning, and build more fire seasons with a new held-out test."></p>
+- **Larger model and temporal attention.** Try a U-Net with a pretrained ResNet-18 encoder and content-dependent
+  day weighting instead of fixed 1 × 1 fusion. The [WSTS+ paper](https://arxiv.org/html/2502.12003v3#S5.T2) found
+  modest gains over five-day stacking on original WSTS, not a guarantee of gains here; larger models alone did
+  not improve consistently. Judge each change with several validation seeds and confirm on a new held-out season.
+  Far fire remains limited by the inputs.
+
+- **Check and calibrate probabilities.** Measure reliability and expected calibration error on validation, overall
+  and by distance ring, then fit positive-temperature scaling, positive-slope Platt scaling or isotonic regression
+  on 2020. Strictly increasing transforms preserve AP and precision–recall curves; isotonic can introduce ties and
+  change AP. Reuse saved validation predictions where available, or make one validation-only prediction pass—no
+  network retraining. Check transfer on a fresh held-out season; seasonal updates need a separate labelled calibration
+  period, never the test labels. These remain next-day active-fire-detection probabilities, not burned-area estimates.
+
+<p align="center"><img src="assets/calibration.png" width="100%" alt="Saved validation and test Brier scores for a hindsight constant-fire-share reference, persistence, the neighbourhood baseline and Fireline. Calibration is unverified; proposed validation-only calibration must be checked under seasonal shift."></p>
+
+<p align="center"><img src="assets/next-steps.png" width="100%" alt="Next steps: probability calibration, targeted training, a larger pretrained encoder and temporal attention with modest benchmark evidence and measured validation seed noise, richer fire and weather inputs, and a new held-out season."></p>
 
 ## Repository Layout
 

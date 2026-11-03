@@ -1,4 +1,4 @@
-"""Collect every number the report shows from saved run outputs (no number is typed in by hand).
+"""Collect measured numbers from saved run outputs, plus cited reference facts from report/sources/model-size.json.
 
 Inputs are the downloaded run outputs under ``outputs/modal/`` (Git-ignored); see ``report/README.md``. The test-year
 section is filled from ``outputs/modal/test-2021-01/`` once that single evaluation has run.
@@ -116,7 +116,12 @@ def rings(path: Path, arms: dict[str, str]) -> dict:
     """AP and threshold metrics per distance ring for the named arms (report name -> name inside the file)."""
     report = _json(path)
     results = report["results"]
-    out = {"samples": report["samples"], "groups": list(GROUPS), "arms": {}}
+    prevalence = float(results["persistence"]["all"]["prevalence"])
+    if not np.isfinite(prevalence) or not 0 <= prevalence <= 1:
+        raise ValueError(f"Invalid observed-year prevalence in {path}.")
+    out = {"samples": report["samples"], "groups": list(GROUPS), "arms": {},
+           "constant_prevalence_reference": {"prevalence": prevalence, "brier": prevalence * (1 - prevalence),
+               "note": "Constant at the observed evaluation-year fire share: hindsight reference, not a deployable forecast."}}
     for name, key in {"persistence": "persistence", "neighbourhood": "neighbourhood", **arms}.items():
         out["arms"][name] = {g: _metrics_row(results[key][g]) for g in GROUPS if g in results[key]}
     return out
@@ -185,6 +190,22 @@ def leak() -> dict:
     }
 
 
+def model_context() -> dict:
+    """Published sizes stay in one cited source file; seed noise comes from existing validation results, never a rerun."""
+    context = _json(Path(__file__).resolve().parents[1] / "sources/model-size.json")
+    comparison = context["attention_comparison"]
+    gains = np.array(comparison["five_day_utae_res18_ap"]) - np.array(comparison["five_day_stacked_res18_ap"])
+    comparison["gain_min"], comparison["gain_max"] = float(gains.min()), float(gains.max())
+    first = _json(RUNS / "v2-seed-1/rings-2020.json")
+    second = _json(RUNS / "v2-seed-2/rings-2020.json")
+    aps = [first["results"]["reference"]["all"]["ap"], first["results"]["best"]["all"]["ap"],
+           second["results"]["best"]["all"]["ap"]]
+    context["seed_check"] = {"year": 2020, "n": len(aps), "aps": aps, "mean_ap": float(np.mean(aps)),
+                             "sd_ap": float(np.std(aps, ddof=1)), "sources": ["v2-seed-1/rings-2020.json",
+                             "v2-seed-2/rings-2020.json"], "note": "Three supervised baseline seeds, not JEPA seed noise."}
+    return context
+
+
 def model() -> dict:
     """Architecture facts for the report, from the run config and the model code."""
     from fireline.data.inputs import DYNAMIC_FEATURES, STATIC_FEATURES
@@ -197,6 +218,7 @@ def model() -> dict:
     return {
         "parameters": config["parameters"],
         "encoder_parameters": count(net.encoder),
+        "context": model_context(),
         "probe_trainable_parameters": probe.get("trainable_parameters"),
         "widths": list(net.encoder.widths),
         "history_days": config["history"],

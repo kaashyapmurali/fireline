@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "draft": false,
-  "source_commit": null,
-  "built_at": "2026-11-02T21:34:12+00:00",
+  "source_commit": "1cda10f41d9906d63ce76080a8c8eb6f0edb33cc",
+  "built_at": "2026-11-03T17:54:31+00:00",
   "files": {
     "images/explainer-day.png": {
       "sha256": "0b40388737c71350a5cab5d5426599f8609b59220f82ddaf2f3191c31aca4597",
@@ -12,73 +12,209 @@
       "sha256": "9007b8d9077a598c72d5c9399783028d410ff4fd678ffb6e637ee0d9cb090de7",
       "bytes": 208379
     },
+    "images/gallery-active-fire.png": {
+      "sha256": "6c1a8f18e93ecec68abfe86a08820488900bf23c56c80f4df4e2c4ca02dd1666",
+      "bytes": 2318
+    },
+    "images/gallery-aspect.png": {
+      "sha256": "16be6027db36acf3fd55b0f4e3e510f8b0cef02b4bd6a6c63bec97cddb1c51b2",
+      "bytes": 224632
+    },
+    "images/gallery-downslope-east.png": {
+      "sha256": "0fe581ec9f78277911f6500b6851dfced5fe1135e06e961b502ce8c52b573400",
+      "bytes": 211396
+    },
+    "images/gallery-downslope-north.png": {
+      "sha256": "c624aabf7fc772ac02c278b132d8b51b9e0f947e068a240817652e84ddd60acf",
+      "bytes": 195809
+    },
+    "images/gallery-elevation.png": {
+      "sha256": "358879ed388a54984e5c03620b602da1f0f0665a57f5313dcef44b0bd567edfc",
+      "bytes": 135250
+    },
+    "images/gallery-energy-release-component.png": {
+      "sha256": "94d6ed3d250b89dad21456b0298612ae092ff2d7b55e7b0a8bc7624b5253f5da",
+      "bytes": 4856
+    },
+    "images/gallery-evi2.png": {
+      "sha256": "3691dbd7d2426ee05add3e55413d14ec1b82371d4ffacc60c43b7c379752ca7a",
+      "bytes": 152758
+    },
+    "images/gallery-false-colour.png": {
+      "sha256": "9290297b94a16a5f8d68373a012c008d60f1597fa2fed44eee76ab1923718b20",
+      "bytes": 152029
+    },
+    "images/gallery-forecast-precipitation.png": {
+      "sha256": "3fee52a7fabbab85e5847d1022be514a854776fc3c9588938f86fd18d61b6d5a",
+      "bytes": 1583
+    },
+    "images/gallery-forecast-specific-humidity.png": {
+      "sha256": "f111cda72764be0af9a30413b19afa4d85fd6f0ba3963718cd79ef10e979e67a",
+      "bytes": 2097
+    },
+    "images/gallery-forecast-temperature.png": {
+      "sha256": "04924b88eb0d6f5ed58172678a7dcad0b3d51b1285899529bd423cceab53a104",
+      "bytes": 2099
+    },
+    "images/gallery-forecast-wind-speed.png": {
+      "sha256": "f84acfd58926bd89fc0fbb7b28f70806e7186f8c717c86a6dd056885211ade34",
+      "bytes": 2083
+    },
+    "images/gallery-landcover.png": {
+      "sha256": "2dc0369252468fc53574b3d6a6c9b38470b37e3a3e1cfc68260cb35e7f728aba",
+      "bytes": 18814
+    },
+    "images/gallery-ndvi.png": {
+      "sha256": "07ab1a5bad401f66bf56a3c6f84e281777a8f2e5b3cac8bb919a4230baed1546",
+      "bytes": 153393
+    },
+    "images/gallery-pdsi.png": {
+      "sha256": "566637a21a4fe2a6d6298f752f8fd24db86128b372821283dba351c16e508e36",
+      "bytes": 6676
+    },
+    "images/gallery-precipitation.png": {
+      "sha256": "3fee52a7fabbab85e5847d1022be514a854776fc3c9588938f86fd18d61b6d5a",
+      "bytes": 1583
+    },
+    "images/gallery-slope.png": {
+      "sha256": "7739a03cef9f989ff2df097a31bc8c58fe49adea027425dd5bd1d57c6851ea22",
+      "bytes": 210656
+    },
+    "images/gallery-specific-humidity.png": {
+      "sha256": "9fdb3e6bdaa4f41044406a9e47c4f835946bde3de7859f2a70fdedeaf992c0f6",
+      "bytes": 6650
+    },
+    "images/gallery-temperature-max.png": {
+      "sha256": "05d91ffffef362598422a9f54444e5cce7a3b3577cdadbe312010740c92ee7eb",
+      "bytes": 6347
+    },
+    "images/gallery-temperature-min.png": {
+      "sha256": "b1bde6f98f595e6a075923057fd9c6e5d3157b40009ca4157c549f41639f2d9b",
+      "bytes": 6380
+    },
+    "images/gallery-viirs-i1.png": {
+      "sha256": "1cc6bccfd30d81f831e08fb46804d4253bf26b6b061179e79ea313fd27bb231d",
+      "bytes": 78901
+    },
+    "images/gallery-viirs-i2.png": {
+      "sha256": "f92b6646b8540510a6a36d7f7542f87b7f45809064a62c8a401ed01d28557dcb",
+      "bytes": 87874
+    },
+    "images/gallery-viirs-m11.png": {
+      "sha256": "75d5ba57b6453cd54749d5bbe406fece56c47befd046325e5f7a9b9717be25f7",
+      "bytes": 48756
+    },
+    "images/gallery-wind-speed.png": {
+      "sha256": "56a114317c71aca21b11a10766a7c174b88927472fc901fb983333c20de16400",
+      "bytes": 10873
+    },
+    "images/gallery-wind-u.png": {
+      "sha256": "bd20a2108e1cdc60407e32c8041c2806334af18a76a2e652d405317ff76bd071",
+      "bytes": 4501
+    },
+    "images/gallery-wind-v.png": {
+      "sha256": "f3b64c73a4693fefacda389dc66a94a07c098ba0044a0776deb5e4bc7de6956c",
+      "bytes": 4812
+    },
+    "images/model-decoder-full.png": {
+      "sha256": "001f16cae858e2568bb4e438cc6f00a5e80092ea8ae0819ccf9b26b6655189dd",
+      "bytes": 183034
+    },
+    "images/model-decoder-half.png": {
+      "sha256": "180bdfa74a3c89bf570d262801eaa37dd8d4ffd8b9ca6ea188fa3f23887cf066",
+      "bytes": 61822
+    },
+    "images/model-decoder-quarter.png": {
+      "sha256": "9b4fd0c844fc9f4d76b21a9cb35cb13eaffb710c255e705475812dabbaac00bb",
+      "bytes": 19344
+    },
     "images/model-features-coarse-day0.png": {
-      "sha256": "bffc6753f3538419266e39364f3c44502dc2ecd3ce693b23627fae39423f6c56",
-      "bytes": 6387
+      "sha256": "a159582be8fe997342b7e5f5a53f7c23c7b435dfe77be6284b8ca27e5f000e21",
+      "bytes": 6499
     },
     "images/model-features-coarse-day1.png": {
-      "sha256": "1c9bab001cae9b6cb4afe0cabf8e903a339cfe2bf9a7019626f41ccf7f8e9eac",
-      "bytes": 6232
+      "sha256": "82e6f809b2474769d7b105747e393ec82271bb9850b8d5021a5bf5ec787f6bac",
+      "bytes": 6610
     },
     "images/model-features-coarse-day2.png": {
-      "sha256": "c7659d76bc741e388e7bf3187705dcad1c95183b150ed574b1e2db7dfb7e9fb3",
-      "bytes": 6006
+      "sha256": "14cc6ad5d5a43c81f0778b45d0081f7f3dc8fb9e53310c185f2dabaf49f51a34",
+      "bytes": 6521
     },
     "images/model-features-coarse-day3.png": {
-      "sha256": "0deaca3eb29844d61acb55ac48db2d04df3781250762da513a8b5ebd0718f5de",
-      "bytes": 6208
+      "sha256": "e94cbca5fa6735c6db20ad64a078b3a9c0216a4c6ff7fbe286ef191d99c00c94",
+      "bytes": 6514
     },
     "images/model-features-coarse-day4.png": {
-      "sha256": "7b6e273a2685552db1468a0b5bb1308ef33408e0dc1c3618f307d6bb99743ec8",
-      "bytes": 6293
+      "sha256": "dd74161c6fb0b59aaca303c14c372b705e5544c0309f6c4952eef70e1024f455",
+      "bytes": 6476
     },
     "images/model-features-full-day0.png": {
-      "sha256": "667956970331c85d44681c1ed3af3be0836f3c5652d3e6dcb513c13a66d516d6",
-      "bytes": 187607
+      "sha256": "5aab2cac04b0b5e007d6e3dbce874e8c705dc3e614258f2fc76431dbfca27286",
+      "bytes": 203912
     },
     "images/model-features-full-day1.png": {
-      "sha256": "430f1bee227cfcff98a3f90f41de5b8cee1733248dd83a6664e20053aa85e314",
-      "bytes": 183809
+      "sha256": "608313d00211a8edc85a9f253e4e79fc6192b5a096a4b1c7c9bd033aa93c5504",
+      "bytes": 205769
     },
     "images/model-features-full-day2.png": {
-      "sha256": "01a44ffa150341330faeff11189ae9de0e627d7c2e91f71ebca72133819c6e9a",
-      "bytes": 185403
+      "sha256": "44c9ba763d3a214d1772eef2669f7ef5ada2bd878acb3dd20a8fc5d8ac46e1a9",
+      "bytes": 206033
     },
     "images/model-features-full-day3.png": {
-      "sha256": "1dd6e067a42a74cbc4c7d993e2aec09ba79d98d8ad9bb5b69945bfd528f05a54",
-      "bytes": 188772
+      "sha256": "5b08bc461e37447fc43a56a5c81e61258527f1bd5656973b1f60703481bb98ac",
+      "bytes": 204659
     },
     "images/model-features-full-day4.png": {
-      "sha256": "3ee79477d01cb94704af89200d57147e6eecbf510b09f425696d4be8c4319a76",
-      "bytes": 191860
+      "sha256": "107ff55a8bf71f09cbdd209db32caa037f0f1eb44a7698f6d58476e9c5bc6ca0",
+      "bytes": 202163
+    },
+    "images/model-features-half-today.png": {
+      "sha256": "2949710424f338ccddd70e9c31ec797d0aab4178e6cbe0e5464fe429a8b37ef0",
+      "bytes": 63960
+    },
+    "images/model-features-quarter-today.png": {
+      "sha256": "9ec1f8de3b8b636113c33f7c9afcd89b6594943f251afced95d9c794c960737b",
+      "bytes": 19873
+    },
+    "images/model-fused-full.png": {
+      "sha256": "1ba5f867c3b8846bf0ae620378580a41bd2a388d102233fbee4739939c77edec",
+      "bytes": 209594
+    },
+    "images/model-fused-half.png": {
+      "sha256": "7fe80b916df77761d0e08574a19d48aed94b76cfb910cd128afafdfb7134df8a",
+      "bytes": 63894
+    },
+    "images/model-fused-quarter.png": {
+      "sha256": "dbff499f858bb51b6dc9e39a67f1480f12f79c2736950dcf2f95c49269247e35",
+      "bytes": 19155
     },
     "images/model-fused.png": {
-      "sha256": "f2f0d97d351eb2fd0227f2cd084f871748fee1297d41fb05cf0c4a12588553f0",
-      "bytes": 6333
+      "sha256": "1cdb38aaf08d1e689621a746cba2d461f85da9a6cf350cb696c37c2c1c2b9453",
+      "bytes": 6518
     },
     "images/model-input-active-fire.png": {
-      "sha256": "975301b644faaedf0c907bd2522ec8e242c7740f212060b42061bcaccd685be3",
-      "bytes": 2912
+      "sha256": "7b01a1289ed83b60ee3b21352d3e0e916a82b109cb85e4f990770b11e16e6ece",
+      "bytes": 2321
     },
     "images/model-input-elevation.png": {
       "sha256": "005eb04ee1c8644803fdb38a418fe51d3f04ab9ae03efdbac6fa2b39550f123d",
       "bytes": 79105
     },
     "images/model-input-energy-release-component.png": {
-      "sha256": "76e890629d7fcfadae75ad1a92813a70757434d3770891d63b43bcf233a9374d",
-      "bytes": 4913
+      "sha256": "94d6ed3d250b89dad21456b0298612ae092ff2d7b55e7b0a8bc7624b5253f5da",
+      "bytes": 4856
     },
     "images/model-input-ndvi.png": {
-      "sha256": "603715b77525188f2847cf3e6257c3ac9bac41bfe64898eff837061ac4cbd4e1",
-      "bytes": 1581
+      "sha256": "07ab1a5bad401f66bf56a3c6f84e281777a8f2e5b3cac8bb919a4230baed1546",
+      "bytes": 153393
     },
     "images/model-input-temperature-max.png": {
-      "sha256": "9f96d812c0e2c37b5f20c39c9ecd17fe9ba807b0145c6ade4985f50f2413af35",
-      "bytes": 6388
+      "sha256": "05d91ffffef362598422a9f54444e5cce7a3b3577cdadbe312010740c92ee7eb",
+      "bytes": 6347
     },
     "images/model-input-wind-speed.png": {
-      "sha256": "c1f43170bb865a5093f0bced875987dde3444bd22bd7fa99fca5847d9a0e0947",
-      "bytes": 4071
+      "sha256": "56a114317c71aca21b11a10766a7c174b88927472fc901fb983333c20de16400",
+      "bytes": 10873
     },
     "images/timeline-10-outcome.png": {
       "sha256": "98ba03f8775d0b89cbf69b0e133874ac3cc106804622f49fadd77c0541379f53",
@@ -373,8 +509,8 @@
       "bytes": 8849
     },
     "images/timeline-28-prediction.png": {
-      "sha256": "90f467cf84b1f7af828a89a7d4e5be7ba33fc2fe566f721c64ad028adafe4fda",
-      "bytes": 13747
+      "sha256": "f53b1853429865350d53d3f770396f26d22ba1d008f1bbc6c2bad20b7e4c50b9",
+      "bytes": 13748
     },
     "images/timeline-28-today.png": {
       "sha256": "c28eb3fc6e9eeabbb558e6be71ee41d3c576ebd6a444400cc88aea7f3328c1c2",
@@ -933,8 +1069,8 @@
       "bytes": 5929
     },
     "images/timeline-60-prediction.png": {
-      "sha256": "b38c3e40a9ff5d438e97aad75a5b9ffb8d10f1e4a7a49a563e521ffb127af4a2",
-      "bytes": 7686
+      "sha256": "ab33dc91361103997807e0cc541768920d6663a8a3398bbeb5e1cab3470a206c",
+      "bytes": 7687
     },
     "images/timeline-60-today.png": {
       "sha256": "5178830285e457a20b07edf6c381edf48a5c4eb532c03983e0efe40567a29bd6",
@@ -1161,8 +1297,8 @@
       "bytes": 3635915
     },
     "site.json": {
-      "sha256": "f35156b783ea05f5ff93e02dad3ae2c6231476f25c476436db1e81b09cfcc676",
-      "bytes": 290314
+      "sha256": "0cadde071ccf4e1d50c4ed234f9070ca21cf8895b7e566fa4acf58abca5458e4",
+      "bytes": 320603
     }
   }
 }

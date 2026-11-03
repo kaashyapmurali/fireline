@@ -13,12 +13,12 @@ import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 // README file name -> [website figure class (figure.fl.<class>), index among figures of that class, image format]
 const FIGURES = {
-  data: ['data-overview', 0, 'png'], architecture: ['arch', 0, 'jpeg'], explainer: ['explainer', 0, 'jpeg'],
+  data: ['data-overview', 0, 'png'], 'model-size': ['model-size', 0, 'png'], 'training-loss': ['training-loss', 0, 'png'], architecture: ['arch', 0, 'jpeg'], explainer: ['explainer', 0, 'jpeg'],
   comparison: ['comparison', 0, 'png'], rings: ['rings', 0, 'png'], days: ['day-scatter', 0, 'png'],
   concentration: ['concentration', 0, 'png'], 'far-fire': ['far-fire', 0, 'png'], gap: ['gap', 0, 'jpeg'],
   'jepa-setup': ['jepa-setup', 0, 'png'], jepa: ['jepa', 0, 'png'], 'jepa-curves': ['curves', 0, 'png'],
   ladder: ['ladder', 0, 'png'], leak: ['leak', 0, 'png'], 'leak-fires': ['leak-fires', 0, 'png'],
-  wind: ['wind', 0, 'png'], 'next-steps': ['next-steps', 0, 'png'],
+  wind: ['wind', 0, 'png'], 'next-steps': ['next-steps', 0, 'png'], calibration: ['calibration', 0, 'png'],
 };
 const args = process.argv.slice(2);
 const urlAt = args.indexOf('--url');
@@ -28,7 +28,7 @@ const wanted = names.length ? names : Object.keys(FIGURES);
 const profile = await mkdtemp(join(tmpdir(), 'render-figures-'));
 const browser = process.env.CHROME_BINARY || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const local = /^https?:\/\/(localhost|127\.0\.0\.1)[:/]/.test(url);
-const child = spawn(browser, ['--headless', '--disable-gpu', '--disable-background-networking', '--no-first-run', '--use-mock-keychain', '--password-store=basic', ...(local ? ['--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost'] : []), `--user-data-dir=${profile}`, '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', 'about:blank'], {stdio: ['ignore', 'ignore', 'pipe']});
+const child = spawn(browser, ['--headless', '--hide-scrollbars', '--disable-gpu', '--disable-background-networking', '--no-first-run', '--use-mock-keychain', '--password-store=basic', ...(local ? ['--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost'] : []), `--user-data-dir=${profile}`, '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', 'about:blank'], {stdio: ['ignore', 'ignore', 'pipe']});
 const wait = ms => new Promise(r => setTimeout(r, ms));
 let socket;
 try {

@@ -1,0 +1,34 @@
+{
+  "sources": {
+    "wsts": {
+      "label": "WSTS · Table 5",
+      "title": "Gerard, Zhao and Sullivan. WildfireSpreadTS: A dataset of multi-modal time series for wildfire spread prediction. NeurIPS 2023 Datasets and Benchmarks.",
+      "url": "https://proceedings.neurips.cc/paper_files/paper/2023/file/ebd545176bdaa9cd5d45954947bd74b7-Paper-Datasets_and_Benchmarks.pdf",
+      "note": "Counts for the All feature set as reported in the original paper; 12-fold cross-validation over years."
+    },
+    "wstsplus": {
+      "label": "WSTS+ paper · Table 2",
+      "title": "Lahrichi, Bova, Johnson and Malof. Improved Wildfire Spread Prediction with Time-Series Data and the WSTS+ Benchmark. arXiv:2502.12003v3.",
+      "url": "https://arxiv.org/html/2502.12003v3#S5.T2",
+      "note": "Model counts in the WSTS+ paper's original-WSTS experiments; the extended WSTS+ benchmark uses four folds. Pretraining details: Section 8.4."
+    }
+  },
+  "models": [
+    {"id": "res18-original", "name": "Res18 U-Net", "days": [1, 5], "parameters": [14400000, 14700000], "design": "ResNet-18 encoder; ImageNet initialisation; five-day inputs stacked as channels.", "source": "wsts"},
+    {"id": "res18-updated", "name": "Res18 U-Net (updated)", "days": [1, 5], "parameters": [14300000, 14400000], "design": "ImageNet-pretrained encoder; updated training recipe; five-day inputs stacked as channels.", "source": "wstsplus"},
+    {"id": "res50", "name": "Res50 U-Net", "days": [1], "parameters": [32500000], "design": "Larger ResNet-50 encoder; single-day input.", "source": "wstsplus"},
+    {"id": "swin", "name": "SwinUnet", "days": [1], "parameters": [27200000], "design": "Swin-Tiny transformer encoder; single-day input.", "source": "wstsplus"},
+    {"id": "segformer", "name": "SegFormer", "days": [1], "parameters": [27500000], "design": "SegFormer-B2 transformer encoder; single-day input.", "source": "wstsplus"},
+    {"id": "utae", "name": "UTAE", "days": [5], "parameters": [1100000], "design": "Small encoder and temporal attention. The original and updated papers both report this size.", "source": "wstsplus", "also_source": "wsts"},
+    {"id": "utae-res18", "name": "UTAE (ResNet-18)", "days": [5], "parameters": [14600000], "design": "Pretrained ResNet-18 encoder with temporal attention; strongest overall model in the WSTS+ paper.", "source": "wstsplus"},
+    {"id": "convlstm", "name": "ConvLSTM", "days": [5], "parameters": [240000], "design": "Convolutional recurrent model.", "source": "wsts"}
+  ],
+  "attention_comparison": {
+    "source": "wstsplus",
+    "evaluation_dataset": "original WSTS",
+    "feature_sets": ["Veg", "Multi", "All"],
+    "five_day_stacked_res18_ap": [0.472, 0.469, 0.460],
+    "five_day_utae_res18_ap": [0.478, 0.477, 0.475],
+    "note": "Whole-model comparisons, not an isolated attention ablation. Table 5 of the same paper evaluates WSTS+ but does not include five-day stacked Res18; do not describe these deltas as measured on WSTS+."
+  }
+}
