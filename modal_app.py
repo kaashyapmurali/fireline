@@ -9,6 +9,7 @@
     modal run -e fireline --detach modal_app.py::train_wind --run-name unet-wind-01 --confirm-run
     modal run -e fireline --detach modal_app.py::test_year --run-name test-2021-01 --confirm-run   # scored ONCE
     modal run -e fireline --detach modal_app.py::train_probe --run-name jepa-02b-probe-r2 --encoder-run jepa-02b-pretrain --confirm-run
+    modal run -e fireline --detach modal_app.py::train_v2 --run-name v2-seed-1 --variant base --seed 1 --confirm-run
 
 All Fireline apps and volumes live in the Modal environment `fireline` (not the shared default `main`). Always pass
 `-e fireline`; entrypoints refuse to submit from another environment. (The first three runs, ingest-smoke-01,
@@ -226,6 +227,33 @@ def train_wind_stages(run_name: str, *, baseline_run: str = "unet-sup-02", seed:
         "--report", str(DATA / "reports" / run_name / "rings-2020.json"),
     )  # fmt: skip
     return [[*train, "--wind-features"], rings]
+
+
+V2_VARIANTS: dict[str, list[str]] = {
+    "base": [],  # the unet-sup-02 recipe; other seeds measure run-to-run noise
+    "far": ["--far-weight", "5", "--far-crop-prob", "0.5", "--far-oversample", "3"],  # far-fire focus
+    "history": ["--history-channels"],  # fire-history channels per input day
+}
+
+
+def train_v2_stages(run_name: str, *, variant: str, seed: int = 0, reference_run: str | None = None) -> list[list[str]]:
+    """Version 2: the unet-sup-02 recipe with a variant's options, then AP by ring and the coarse far-fire cells
+    (8 and 4 px) for the run's best/last checkpoints on validation 2020. ``reference_run``: also evaluate that run's
+    best checkpoint in the same job (same hardware and code), e.g. unet-sup-02 as seed 0."""
+    if variant not in V2_VARIANTS:
+        raise ValueError(f"variant must be one of {sorted(V2_VARIANTS)}")
+    (train,) = train_supervised_stages(run_name, epochs=30, val_every=2, seed=seed)
+    run = DATA / "runs" / validate_name(run_name)
+    checkpoints = ["--checkpoint", f"best={run / 'best.pt'}", "--checkpoint", f"last={run / 'last.pt'}"]
+    if reference_run is not None:
+        checkpoints += ["--checkpoint", f"reference={DATA / 'runs' / validate_name(reference_run) / 'best.pt'}"]
+    rings = module(
+        "eval.rings", "--data", str(DATA / "processed" / "wsts"), "--stats", str(STATS),
+        "--cache-dir", "/tmp/fireline-cache", "--years", *map(str, VALIDATION_YEARS), *checkpoints,
+        "--device", "cuda", "--amp", "--workers", "4", "--samples-for", "best", "--cells", "8", "4",
+        "--report", str(DATA / "reports" / run_name / "rings-2020.json"),
+    )  # fmt: skip
+    return [[*train, *V2_VARIANTS[variant]], rings]
 
 
 def test_year_stages(run_name: str) -> list[list[str]]:
@@ -516,6 +544,13 @@ def train_probe(run_name: str, encoder_run: str, seed: int = 0, work_seconds: in
                 confirm_run: bool = False) -> None:  # fmt: skip
     submit(run_name, train_probe_stages(run_name, encoder_run=encoder_run, seed=seed), work_seconds, confirm_run,
            target=run_gpu)  # fmt: skip
+
+
+@app.local_entrypoint()
+def train_v2(run_name: str, variant: str, seed: int = 0, reference_run: str = "", work_seconds: int = 4500,
+             confirm_run: bool = False) -> None:  # fmt: skip
+    stages = train_v2_stages(run_name, variant=variant, seed=seed, reference_run=reference_run or None)
+    submit(run_name, stages, work_seconds, confirm_run, target=run_gpu)
 
 
 @app.local_entrypoint()

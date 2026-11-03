@@ -100,14 +100,31 @@ class SpreadModel(nn.Module):
         return self.head(torch.cat([x, last_fire], dim=1))[:, 0]
 
 
+def far_mask(today: torch.Tensor, radius: int = 5) -> torch.Tensor:
+    """(B, H, W) boolean: pixels more than ``radius`` px (square distance) from today's fire; all pixels when an image
+    has no fire today. Matches ``fireline.analysis.far_fire.far_region`` inside the image (fire outside a crop is not
+    seen)."""
+    near = F.max_pool2d(today.float()[:, None], 2 * radius + 1, stride=1, padding=radius)[:, 0] > 0
+    return ~near
+
+
 def spread_loss(
-    logits: torch.Tensor, target: torch.Tensor, valid: torch.Tensor, dice_weight: float = 1.0
+    logits: torch.Tensor,
+    target: torch.Tensor,
+    valid: torch.Tensor,
+    dice_weight: float = 1.0,
+    pixel_weight: torch.Tensor | None = None,
 ) -> torch.Tensor:
-    """Binary cross-entropy plus soft Dice over valid pixels (Dice counters the extreme class imbalance)."""
+    """Binary cross-entropy plus soft Dice over valid pixels (Dice counters the extreme class imbalance).
+
+    ``pixel_weight`` (B, H, W) multiplies each pixel's cross-entropy (normalised by the number of valid pixels, so
+    weights above 1 add to the loss rather than redistribute it); the Dice term is unweighted.
+    """
     valid = valid.float()
-    bce = (F.binary_cross_entropy_with_logits(logits, target, reduction="none") * valid).sum() / valid.sum().clamp(
-        min=1
-    )
+    bce = F.binary_cross_entropy_with_logits(logits, target, reduction="none") * valid
+    if pixel_weight is not None:
+        bce = bce * pixel_weight
+    bce = bce.sum() / valid.sum().clamp(min=1)
     prob = torch.sigmoid(logits) * valid
     dice = 1 - (2 * (prob * target).sum() + 1) / (prob.sum() + (target * valid).sum() + 1)
     return bce + dice_weight * dice

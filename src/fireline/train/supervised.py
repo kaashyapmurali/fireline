@@ -18,16 +18,17 @@ from pathlib import Path
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, WeightedRandomSampler
 
 from fireline.baselines.persistence import fire_paths
 from fireline.data.cache import materialize_all
+from fireline.data.history_features import HISTORY_FEATURES
 from fireline.data.inputs import Stats
 from fireline.data.wind_features import WIND_FEATURES
 from fireline.eval.fire_batches import iterate_fires, predict_fire
 from fireline.eval.metrics import PixelMetrics
-from fireline.models.spread import SpreadModel, spread_loss
-from fireline.train.dataset import SpreadDataset, index_samples, worker_init
+from fireline.models.spread import FIRE_CHANNEL, SpreadModel, far_mask, spread_loss
+from fireline.train.dataset import SpreadDataset, far_fire_pixels, index_samples, worker_init
 
 
 def pick_device(name: str) -> torch.device:
@@ -116,7 +117,8 @@ def build_datasets(args: argparse.Namespace) -> tuple[SpreadDataset, list[Path],
     print(f"cache ready: {len(train_dirs)} train / {len(val_dirs)} val fires in {time.perf_counter() - start:.1f}s",
           flush=True)  # fmt: skip
     train = SpreadDataset(index_samples(train_dirs, args.history), stats, args.history, crop=args.crop, seed=args.seed,
-                          wind=args.wind_features)  # fmt: skip
+                          wind=args.wind_features, history_channels=args.history_channels,
+                          far_crop_prob=args.far_crop_prob)  # fmt: skip
     return train, val_dirs, stats
 
 
@@ -145,6 +147,15 @@ def main() -> None:
     parser.add_argument("--max-val-fires", type=int, default=0, help="Development only.")
     parser.add_argument("--val-batch-size", type=int, default=4)
     parser.add_argument("--wind-features", action="store_true", help="Append fireline.data.wind_features per day.")
+    parser.add_argument("--history-channels", action="store_true",
+                        help="Append fireline.data.history_features per day.")  # fmt: skip
+    parser.add_argument("--far-weight", type=float, default=1.0,
+                        help="Cross-entropy weight of tomorrow's far fire pixels (> 5 px from today's fire).")  # fmt: skip
+    parser.add_argument("--far-crop-prob", type=float, default=0.0,
+                        help="Probability of choosing the crop around tomorrow's far fire, when there is any.")  # fmt: skip
+    parser.add_argument("--far-oversample", type=float, default=1.0,
+                        help="Sampling weight of training days with at least --far-min-pixels far fire pixels.")  # fmt: skip
+    parser.add_argument("--far-min-pixels", type=int, default=10)
     parser.add_argument("--overfit-batches", type=int, default=0, help="Sanity check: train on N fixed batches.")
     parser.add_argument("--init-encoder", type=Path, help="Encoder state dict to start from (e.g. JEPA encoder.pt).")
     parser.add_argument(
@@ -174,14 +185,25 @@ def main() -> None:
                    for i in range(0, len(fixed), args.batch_size)]  # fmt: skip
         train_loader: list | DataLoader = batches
     else:
-        train_loader = DataLoader(train, batch_size=args.batch_size, shuffle=True, num_workers=args.workers,
-                                  worker_init_fn=worker_init, pin_memory=device.type == "cuda", drop_last=True,
+        sampler = None
+        if args.far_oversample != 1.0:  # same number of samples per epoch, drawn with replacement
+            far_days = far_fire_pixels(train.refs) >= args.far_min_pixels
+            weights = np.where(far_days, args.far_oversample, 1.0)
+            sampler = WeightedRandomSampler(weights.tolist(), num_samples=len(train), replacement=True,
+                                            generator=torch.Generator().manual_seed(args.seed))  # fmt: skip
+            print(f"far oversampling: {int(far_days.sum())} of {len(train)} training days weighted "
+                  f"{args.far_oversample}", flush=True)  # fmt: skip
+        train_loader = DataLoader(train, batch_size=args.batch_size, shuffle=sampler is None, sampler=sampler,
+                                  num_workers=args.workers, worker_init_fn=worker_init,
+                                  pin_memory=device.type == "cuda", drop_last=True,
                                   persistent_workers=args.workers > 0)  # fmt: skip
 
     def val_fires():  # features built once per fire in background workers
-        return iterate_fires(val_dirs, stats, args.history, args.workers, wind=args.wind_features)
+        return iterate_fires(val_dirs, stats, args.history, args.workers, wind=args.wind_features,
+                             history_channels=args.history_channels)  # fmt: skip
 
-    model = SpreadModel(history=args.history, extra_channels=len(WIND_FEATURES) if args.wind_features else 0)
+    extra = len(WIND_FEATURES) if args.wind_features else len(HISTORY_FEATURES) if args.history_channels else 0
+    model = SpreadModel(history=args.history, extra_channels=extra)
     if args.freeze_encoder and (args.init_encoder is None) == (not args.random_encoder):
         raise ValueError("--freeze-encoder needs exactly one of --init-encoder and --random-encoder.")
     if args.random_encoder and not args.freeze_encoder:
@@ -216,7 +238,11 @@ def main() -> None:
             batch = to_device(batch, device)
             with torch.autocast(device.type, dtype=torch.bfloat16, enabled=amp):
                 logits = model(batch["dynamic"], batch["static"])
-            loss = spread_loss(logits.float(), batch["target"], batch["valid"])
+            weight = None
+            if args.far_weight != 1.0:
+                far = far_mask(batch["dynamic"][:, -1, FIRE_CHANNEL] > 0.5) & (batch["target"] > 0.5)
+                weight = 1.0 + (args.far_weight - 1.0) * far.float()
+            loss = spread_loss(logits.float(), batch["target"], batch["valid"], pixel_weight=weight)
             optimizer.zero_grad(set_to_none=True)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(trainable, 1.0)

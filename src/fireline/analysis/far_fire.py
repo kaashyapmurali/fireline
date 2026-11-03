@@ -34,6 +34,19 @@ RING_LIMITS = (0, 2, 5, 10, 20)
 CATEGORIES = ("recent_fire", "unobserved_today", "downwind", "isolated")
 
 
+FAR_PX = RING_LIMITS[2]  # "far": more than 5 px from today's fire (square distance), or no fire today
+
+
+def far_region(today: np.ndarray) -> np.ndarray:
+    """Pixels more than ``FAR_PX`` from today's fire (square distance); everything when there is no fire today.
+
+    Equal to ``ring_map(today) >= 3``.
+    """
+    if not today.any():
+        return np.ones(today.shape, dtype=bool)
+    return ~(box_mean(today, FAR_PX) > 0)
+
+
 def ring_map(today: np.ndarray) -> np.ndarray:
     """Ring index per pixel (0..6, see ``RING_NAMES``) from today's binary fire mask (square distance)."""
     rings = np.full(today.shape, 5, dtype=np.int8)

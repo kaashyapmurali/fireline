@@ -203,5 +203,20 @@ def test_test_year_stage_scores_every_arm_on_2021_only() -> None:
 def test_only_the_test_year_stage_touches_2021() -> None:
     builders = [modal_app.baselines_stages("x"), modal_app.distance_stages("x"), modal_app.far_fire_stages("x"),
                 modal_app.train_wind_stages("x"), modal_app.train_jepa_stages("x"),
-                modal_app.train_supervised_stages("x", epochs=1)]  # fmt: skip
+                modal_app.train_supervised_stages("x", epochs=1),
+                *(modal_app.train_v2_stages("x", variant=v) for v in modal_app.V2_VARIANTS)]  # fmt: skip
     assert all("2021" not in arg for stages in builders for stage in stages for arg in stage)
+
+
+def test_v2_runs_are_the_supervised_recipe_plus_variant_options() -> None:
+    (base,) = modal_app.train_supervised_stages("v2-seed-1", epochs=30, val_every=2, seed=1)
+    train, rings = modal_app.train_v2_stages("v2-seed-1", variant="base", seed=1, reference_run="unet-sup-02")
+    assert train == base
+    assert "reference=/data/runs/unet-sup-02/best.pt" in rings and "best=/data/runs/v2-seed-1/best.pt" in rings
+    assert rings[rings.index("--cells") + 1 : rings.index("--cells") + 3] == ["8", "4"]
+    far, _ = modal_app.train_v2_stages("v2-far-01", variant="far")
+    history, history_rings = modal_app.train_v2_stages("v2-history-01", variant="history")
+    assert far[-6:] == ["--far-weight", "5", "--far-crop-prob", "0.5", "--far-oversample", "3"]
+    assert history[-1] == "--history-channels" and "reference" not in " ".join(history_rings)
+    with pytest.raises(ValueError):
+        modal_app.train_v2_stages("x", variant="unknown")

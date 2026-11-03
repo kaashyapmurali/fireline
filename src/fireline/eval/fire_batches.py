@@ -18,6 +18,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from fireline.data.cache import open_cached
+from fireline.data.history_features import fire_history
 from fireline.data.inputs import Stats, raw_dynamic, raw_static, standardize
 from fireline.data.samples import target_days
 from fireline.data.schema import NO_FIRE
@@ -35,13 +36,15 @@ class FireTensors:
 
 
 def build_fire(fire_dir: Path, stats: Stats, history: int, min_history: int = 5, multiple: int = 32,
-               wind: bool = False) -> FireTensors:  # fmt: skip
+               wind: bool = False, history_channels: bool = False) -> FireTensors:  # fmt: skip
     record = open_cached(fire_dir)
     days, height, width = record.fire_hour.shape
     pad = ((0, -height % multiple), (0, -width % multiple))
     dynamic, static = standardize(raw_dynamic(record, slice(0, days)), raw_static(record), stats)
     if wind:  # computed on the unpadded image, like the training crops
         dynamic = np.concatenate([dynamic, wind_features(dynamic, static)], axis=1)
+    if history_channels:  # day d's channels read days 0..d only
+        dynamic = np.concatenate([dynamic, fire_history(np.asarray(record.fire_hour) != NO_FIRE)], axis=1)
     dynamic = np.pad(dynamic, ((0, 0), (0, 0), *pad), mode="reflect")
     static = np.pad(static, ((0, 0), *pad), mode="reflect")
     fire_mask = np.pad(np.asarray(record.fire_hour) != NO_FIRE, ((0, 0), *pad))
@@ -53,20 +56,25 @@ def build_fire(fire_dir: Path, stats: Stats, history: int, min_history: int = 5,
 
 
 class _Fires(Dataset):
-    def __init__(self, fire_dirs: list[Path], stats: Stats, history: int, wind: bool = False) -> None:
+    def __init__(self, fire_dirs: list[Path], stats: Stats, history: int, wind: bool = False,
+                 history_channels: bool = False) -> None:  # fmt: skip
+        if wind and history_channels:
+            raise ValueError("Wind features and history channels cannot be combined.")
         self.fire_dirs, self.stats, self.history, self.wind = fire_dirs, stats, history, wind
+        self.history_channels = history_channels
 
     def __len__(self) -> int:
         return len(self.fire_dirs)
 
     def __getitem__(self, index: int) -> FireTensors:
-        return build_fire(self.fire_dirs[index], self.stats, self.history, wind=self.wind)
+        return build_fire(self.fire_dirs[index], self.stats, self.history, wind=self.wind,
+                          history_channels=self.history_channels)  # fmt: skip
 
 
 def iterate_fires(fire_dirs: list[Path], stats: Stats, history: int, workers: int = 4,
-                  wind: bool = False) -> Iterator[FireTensors]:  # fmt: skip
+                  wind: bool = False, history_channels: bool = False) -> Iterator[FireTensors]:  # fmt: skip
     """Yield one fire's tensors at a time (built in ``workers`` background processes)."""
-    yield from DataLoader(_Fires(fire_dirs, stats, history, wind), batch_size=None, num_workers=workers,
+    yield from DataLoader(_Fires(fire_dirs, stats, history, wind, history_channels), batch_size=None, num_workers=workers,
                           prefetch_factor=2 if workers else None)  # fmt: skip
 
 
