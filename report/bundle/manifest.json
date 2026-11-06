@@ -1,9 +1,13 @@
 {
   "schema_version": 1,
   "draft": false,
-  "source_commit": "88ac2bd05bc5c4778d0302e011477d9fa00dbfab",
-  "built_at": "2026-11-03T21:43:51+00:00",
+  "source_commit": "da9d831a5d8e7be695b915a9bc68082bb92b62b3",
+  "built_at": "2026-11-06T02:39:28+00:00",
   "files": {
+    "images/cover.jpg": {
+      "sha256": "698f0929dd8de52b9bd5998a997b76b70e5bcd8222ff28f9f461b18c4ee9795b",
+      "bytes": 292072
+    },
     "images/explainer-day.png": {
       "sha256": "0b40388737c71350a5cab5d5426599f8609b59220f82ddaf2f3191c31aca4597",
       "bytes": 7540
@@ -215,6 +219,270 @@
     "images/model-input-wind-speed.png": {
       "sha256": "56a114317c71aca21b11a10766a7c174b88927472fc901fb983333c20de16400",
       "bytes": 10873
+    },
+    "images/satellite-10.jpg": {
+      "sha256": "34ec6432a491ad5162cc6a4ed043f41d2d023712de2384a253acd1e8686e554c",
+      "bytes": 44252
+    },
+    "images/satellite-11.jpg": {
+      "sha256": "dd9839340f30bbc74a12c85e5134689a3062337b5d43cf2074a713f0f74cb55c",
+      "bytes": 28982
+    },
+    "images/satellite-12.jpg": {
+      "sha256": "e380003bce26d4360ec694018269479c7d3768fa3e28c3c109001f9580d6201b",
+      "bytes": 29091
+    },
+    "images/satellite-13.jpg": {
+      "sha256": "4a2f4639b8cb0e59abf29d7ba36bebf973508102f5cff23306712420fa2f0105",
+      "bytes": 30964
+    },
+    "images/satellite-14.jpg": {
+      "sha256": "99dfd80666bd68b810c1cf2834850168a34a196de08b6262e9b8cb30aa6cb742",
+      "bytes": 28897
+    },
+    "images/satellite-15.jpg": {
+      "sha256": "97123318be7259e6f2063348130f2f5294ba95b03c8f27b4496ff67159eda44e",
+      "bytes": 32789
+    },
+    "images/satellite-16.jpg": {
+      "sha256": "803d70e594e0937264acb5a39f8b999c41d57680bb4ea7dca1b3c3dbda17510e",
+      "bytes": 20578
+    },
+    "images/satellite-17.jpg": {
+      "sha256": "be397ba13fe90b4485ecd94e39888b121b37a8d017fb3190cc404da2b9f6b781",
+      "bytes": 24049
+    },
+    "images/satellite-18.jpg": {
+      "sha256": "43a2113c1984686848fbe3b00fad375621edcc8fcf21999bdd3ab1cd030e1b5c",
+      "bytes": 22379
+    },
+    "images/satellite-19.jpg": {
+      "sha256": "d62e51f419cae3e82305ec6fa664d0b299b0b593f3f3819de466a971fe237fb8",
+      "bytes": 37160
+    },
+    "images/satellite-20.jpg": {
+      "sha256": "623dea0a938653298d19a8ec62fe7545b59a48ad58a2cdbab1d12cb4218cfccc",
+      "bytes": 48331
+    },
+    "images/satellite-21.jpg": {
+      "sha256": "25f76dd93c6b11c979c35a4455804bd231736b5790e67cf5426f20d6b3eeb39c",
+      "bytes": 27986
+    },
+    "images/satellite-22.jpg": {
+      "sha256": "e2a4eb79d7a61e5f62542d6389fe259ff6955b3c5401ddcc80f8a8d646f9a1d2",
+      "bytes": 33034
+    },
+    "images/satellite-23.jpg": {
+      "sha256": "9e5ebb1983cd044ec97eea80bbeeca228bb4a0f6f1c16df91a24bd281db4552d",
+      "bytes": 37842
+    },
+    "images/satellite-24.jpg": {
+      "sha256": "7468b4abc08c05febf73be065c92a173b494e812ad09284833423ce22e31fda8",
+      "bytes": 35061
+    },
+    "images/satellite-25.jpg": {
+      "sha256": "602d44880831ed1923c59d928f1aa919d83f759319152514128e134e266a4bca",
+      "bytes": 4948
+    },
+    "images/satellite-26.jpg": {
+      "sha256": "2060900c2686c71cd459d2f07b3c8007b4c45bd291311093ecf2b0f8e570d7f2",
+      "bytes": 33659
+    },
+    "images/satellite-27.jpg": {
+      "sha256": "9cec137b129dd12c6cd17d4f528d7ff00a7c9346874d4d3ae7a03729219cba2e",
+      "bytes": 27394
+    },
+    "images/satellite-28.jpg": {
+      "sha256": "26946ba0f3f7de4b812c60435c618c81092cc391a87d9b63c8bb404d40c8f01f",
+      "bytes": 17354
+    },
+    "images/satellite-29.jpg": {
+      "sha256": "1974cb819c369bea2295d3b7f12a59ed0b72adb60ff4f8a89ded7a99c057a296",
+      "bytes": 16704
+    },
+    "images/satellite-30.jpg": {
+      "sha256": "c6cc757821c8d02edc766e23035d23117ab93a012605212db90dfb406cf82d63",
+      "bytes": 30739
+    },
+    "images/satellite-31.jpg": {
+      "sha256": "d88760ec033d261ec47be90a234d362b69ac381354177ee603a23a7be9a68d9f",
+      "bytes": 29956
+    },
+    "images/satellite-32.jpg": {
+      "sha256": "93e0d8a698c649ac6ae0be3918608ee59a7c507838e4a8a4004604eed1ff17eb",
+      "bytes": 23392
+    },
+    "images/satellite-33.jpg": {
+      "sha256": "7c809f2e825e28f20d546dff3d64a9d98a26bf2f51477c3c3101964ef77bbe22",
+      "bytes": 11555
+    },
+    "images/satellite-34.jpg": {
+      "sha256": "5569256da27001c635b7a6d6dd570fd85dbb6072ecebf15492159b84c50ba585",
+      "bytes": 30712
+    },
+    "images/satellite-35.jpg": {
+      "sha256": "0c96922085343420bf5df0296bf5119fb0ebaf926c69479953b2298e60a0c7c3",
+      "bytes": 33722
+    },
+    "images/satellite-36.jpg": {
+      "sha256": "d6326ca8583698f753a641542118d5c15288779e9a94210e7e52e2431781f4dd",
+      "bytes": 31251
+    },
+    "images/satellite-37.jpg": {
+      "sha256": "ede37a64961b1bf56221a7aeae05dd09736a81e17eb801768ad5d91725256776",
+      "bytes": 17316
+    },
+    "images/satellite-38.jpg": {
+      "sha256": "1daa926f972f423d7052edb48dc7fb0b0b8cb80aa05b99afdf2b063225ab1c83",
+      "bytes": 24400
+    },
+    "images/satellite-39.jpg": {
+      "sha256": "4bf34a60d8856f66b7b57379fb54323bd8ecb37f8f3b5bc84fa00ea1247f9e7c",
+      "bytes": 19843
+    },
+    "images/satellite-40.jpg": {
+      "sha256": "35e82e1cf77e0825820ad815f7eefccb13e24994a425291bf3f5916d95a5b9db",
+      "bytes": 32367
+    },
+    "images/satellite-41.jpg": {
+      "sha256": "a4d778d1b8c418167174cfa5b32bf829746a8a95a1050d33cd1f4a3427d541e0",
+      "bytes": 29451
+    },
+    "images/satellite-42.jpg": {
+      "sha256": "b4f7737af5953d93bf3244b10ecd5247ac5d0155ce49721c402babfa23cf0fc7",
+      "bytes": 22994
+    },
+    "images/satellite-43.jpg": {
+      "sha256": "d33038206a82363af4e28f2b149fade14ca67d14c76ab2b4ef5a6747f8c77b09",
+      "bytes": 28739
+    },
+    "images/satellite-44.jpg": {
+      "sha256": "a23f6d541c0ad3aa8a94699df3499f62cc9a7d920a2db7141de86491181fcfad",
+      "bytes": 23176
+    },
+    "images/satellite-45.jpg": {
+      "sha256": "3e54f9cbc1f9f680abb0bcab417fcb3da75cf1d6570e5a9849866bd5d25eaa96",
+      "bytes": 30794
+    },
+    "images/satellite-46.jpg": {
+      "sha256": "723dd513a0004969a274057799aaa86b0351b6252597bf726210bfe964f22ac7",
+      "bytes": 36203
+    },
+    "images/satellite-47.jpg": {
+      "sha256": "6b050b7c510e82ff910f70ae9e3f121b35e656cf8a750360f4d740e111f7ded9",
+      "bytes": 35449
+    },
+    "images/satellite-48.jpg": {
+      "sha256": "e6639956678662e5f9345b58a7e8411c1f158a9d38194392275300536567c68f",
+      "bytes": 28250
+    },
+    "images/satellite-49.jpg": {
+      "sha256": "57bfb9e0be0541e881f146071d71ae53e6a3b55b83498e89b8fcae20187c18ad",
+      "bytes": 23271
+    },
+    "images/satellite-5.jpg": {
+      "sha256": "9656226b783714a7ac919fb829a0b638826c520a7221614134fe496fec68f40c",
+      "bytes": 32600
+    },
+    "images/satellite-50.jpg": {
+      "sha256": "90fb78940ea28cc225ac867290a470659691619edb4c223c94f8d3ec1d81a3f0",
+      "bytes": 21762
+    },
+    "images/satellite-51.jpg": {
+      "sha256": "3fab5ad001708563bfaa44047ad6fecb585bb282427e8cf5965659680973fb92",
+      "bytes": 33700
+    },
+    "images/satellite-52.jpg": {
+      "sha256": "1b9c63c19d3005092f797af4849c09e42b7dd9c7c8d9b2321b942f3addab3e9c",
+      "bytes": 38029
+    },
+    "images/satellite-53.jpg": {
+      "sha256": "84fedc43db15a2e9d913374a68c41e25b472f27361ae80107ed9b7188da56d06",
+      "bytes": 32882
+    },
+    "images/satellite-54.jpg": {
+      "sha256": "211040681cc0bb57079db40176f767c1ed6b0305603dcd12a9842960e9673541",
+      "bytes": 28827
+    },
+    "images/satellite-55.jpg": {
+      "sha256": "edbc4b977345499c5dd9d2c2632c6ff379087b994c30bc7a9423da5459922ce7",
+      "bytes": 27993
+    },
+    "images/satellite-56.jpg": {
+      "sha256": "2ee08b79f3ecc25e8008feb72d9096810951cdb1b012173fe710556d517964d8",
+      "bytes": 27886
+    },
+    "images/satellite-57.jpg": {
+      "sha256": "6d9ef2908de2d3a7dc512cdde973c516654d806e9e047afc965944633520b598",
+      "bytes": 34383
+    },
+    "images/satellite-58.jpg": {
+      "sha256": "d1809e0d4c00574535fd07a681ea498a9f88c7500db904a35af45fbd74ab02ab",
+      "bytes": 32977
+    },
+    "images/satellite-59.jpg": {
+      "sha256": "824fd1a7c8e18345993be89c3fc7963fd7e1b30e1b6e12856cb78d0d52e3fef4",
+      "bytes": 29642
+    },
+    "images/satellite-6.jpg": {
+      "sha256": "76fee45a59a56e1df5f32a0fe258f49d73935079ddb20e000bd2804b0d705c9b",
+      "bytes": 29256
+    },
+    "images/satellite-60.jpg": {
+      "sha256": "77cc203ca7c0ec35c4f4116457a2fdf39c4647d22e8dac1c67518fe6a31ecdcc",
+      "bytes": 35046
+    },
+    "images/satellite-61.jpg": {
+      "sha256": "c8993cbcdb04bddb31f87a9f4a23739596e5590aea9510d10072bc80a94c268e",
+      "bytes": 46374
+    },
+    "images/satellite-62.jpg": {
+      "sha256": "70d42fa7d770c9fc9ec156e024c034b82d50ee3deb8f7844a4dad6641a47910d",
+      "bytes": 51973
+    },
+    "images/satellite-63.jpg": {
+      "sha256": "14376f041804cd08d5d389f0c80d9ddcc681357d99eb7b16b21b2756ff4aa248",
+      "bytes": 61187
+    },
+    "images/satellite-64.jpg": {
+      "sha256": "9f2d16c899ddeef2b7dd5f69a9286e758ce31f50c59b2287dbb0c1bb9b5aa0e8",
+      "bytes": 30605
+    },
+    "images/satellite-65.jpg": {
+      "sha256": "61277df367f305e3cf39c58b46389af47f2c7920257528881ff7b3b23f01bbfe",
+      "bytes": 32914
+    },
+    "images/satellite-66.jpg": {
+      "sha256": "382d004d93d13bcf11b163845290cf050ce08972c172e7aa2cf2b82b5a81069d",
+      "bytes": 31668
+    },
+    "images/satellite-67.jpg": {
+      "sha256": "3ba16fa8b8b7161ae1b5c9ef200c470711416e789d39ce3708466919a787b9bb",
+      "bytes": 36296
+    },
+    "images/satellite-68.jpg": {
+      "sha256": "8a2c16ad0e2007b18fa85dda776f4d618a6296ec8f748f08588f15c81f02dc6a",
+      "bytes": 35617
+    },
+    "images/satellite-69.jpg": {
+      "sha256": "3af51ba3c5a024ecb26c49e5e00816f3d675ee2d18ac65ab04d1610d1d282eb9",
+      "bytes": 32766
+    },
+    "images/satellite-7.jpg": {
+      "sha256": "730b8e690d1370f354e1d9f689cd7aa4e78578abf3e976f643eb0e0ee1bf3fea",
+      "bytes": 30371
+    },
+    "images/satellite-70.jpg": {
+      "sha256": "c6f9095eeb62df2aae2620c375e268085634ed9dc753e293c22122b6b7d68c05",
+      "bytes": 25651
+    },
+    "images/satellite-8.jpg": {
+      "sha256": "2e4cbfe288c80cdc5175fc072cd3354f9f29286b42b9b03bd24ff72cf22d6b7b",
+      "bytes": 35203
+    },
+    "images/satellite-9.jpg": {
+      "sha256": "a89666d1da71dee05fc5a951142010e427cc64ffa61c46673c85ed8888198504",
+      "bytes": 38119
     },
     "images/timeline-10-outcome.png": {
       "sha256": "98ba03f8775d0b89cbf69b0e133874ac3cc106804622f49fadd77c0541379f53",
@@ -1297,8 +1565,8 @@
       "bytes": 3635915
     },
     "site.json": {
-      "sha256": "74f294f464c63f70929edd8a19d9753f131afd056b1bc03c306dae9f419ae429",
-      "bytes": 325573
+      "sha256": "fa6d150b1affdb8ae43ccc83c03f7fae76f430908a1f2e002e965005f59c1004",
+      "bytes": 327187
     }
   }
 }

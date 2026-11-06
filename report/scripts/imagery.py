@@ -12,11 +12,13 @@ Every layer is upscaled by an integer factor with nearest-neighbour sampling, so
 
 from __future__ import annotations
 
+import datetime
 import json
 from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
+import satellite
 import torch
 import views
 from PIL import Image, ImageDraw, ImageFont
@@ -221,6 +223,87 @@ def write_gif_and_filmstrip(timeline: dict, layer_dir: Path, out_dir: Path) -> d
     }
 
 
+def _short(iso: str) -> str:
+    return datetime.date.fromisoformat(iso).strftime("%b %-d")
+
+
+def densest_window(mask: np.ndarray, rows: int, cols: int) -> tuple[int, int]:
+    """Top-left ``(row, col)`` of the ``rows x cols`` window holding the most set pixels of ``mask`` (integral image)."""
+    integral = np.pad(mask.astype(np.int64).cumsum(0).cumsum(1), ((1, 0), (1, 0)))
+    sums = integral[rows:, cols:] - integral[:-rows, cols:] - integral[rows:, :-cols] + integral[:-rows, :-cols]
+    r, c = np.unravel_index(np.argmax(sums), sums.shape)
+    return int(r), int(c)
+
+
+# The cover day is an editorial choice made by eye (a clear fire shape, a visible smoke plume, a good forecast), not a
+# computed rule. It happens to be the timeline's typical day too. Changing it only changes the card image.
+COVER_NEXT_DATE = "2021-08-19"
+COVER_RULE = (
+    "chosen by eye for the card image (clear fire shapes, a visible plume, a good forecast); "
+    "also the typical (median-F1) day of the story buttons; forecast mode, divider at 50%"
+)
+
+
+def _font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    try:
+        return ImageFont.truetype("Arial.ttf", size)
+    except OSError:
+        return ImageFont.load_default()
+
+
+def write_cover(layer_dir: Path, sat_dir: Path, t: int, out_dir: Path, size: tuple[int, int] = (1920, 1080),
+                labels: tuple[str, str] = ("Model map", "Satellite")) -> str:  # fmt: skip
+    """16:9 card cover: the website's swipe-compare at its 50% start, forecast mode, for day ``t``.
+
+    Left of the divider is the terrain map, right of it the satellite image; today's fire, the predicted-probability
+    haze and tomorrow's actual outline are drawn over both, like the interactive timeline. The window is full width and
+    placed where the fire (today or tomorrow) is densest.
+    """
+    width, height = size
+    base = Image.open(layer_dir / "timeline-base.png").convert("RGB")
+    scale = width / base.width  # final pixels per layer pixel
+    model_px = width / (base.width / SCALE)  # final pixels per model pixel
+    win_rows = round(height / model_px)
+    layers = {n: Image.open(layer_dir / f"timeline-{t}-{n}.png").convert("RGBA") for n in ("prediction", "today", "truth")}
+    mask = np.zeros((base.height // SCALE, base.width // SCALE), dtype=bool)
+    for n in ("today", "truth"):
+        alpha = np.asarray(layers[n].getchannel("A")).reshape(mask.shape[0], SCALE, mask.shape[1], SCALE)
+        mask |= alpha.max(axis=(1, 3)) > 0
+    top = densest_window(mask, min(win_rows, mask.shape[0]), mask.shape[1])[0]
+
+    full = (width, round(base.height * scale))
+    terrain = base.resize(full, Image.Resampling.LANCZOS)
+    sat = Image.open(sat_dir / f"satellite-{t}.jpg").convert("RGB").resize(full, Image.Resampling.BICUBIC)
+    split = width // 2
+    terrain.paste(sat.crop((split, 0, width, full[1])), (split, 0))
+    frame = terrain.convert("RGBA")
+    for name in ("prediction", "today", "truth"):
+        layer = layers[name].resize(full, Image.Resampling.NEAREST)
+        if name == "today":
+            layer.putalpha(layer.getchannel("A").point(lambda a: a * 230 // 255))  # as on the website (opacity 0.9)
+        frame.alpha_composite(layer)
+    y0 = min(round(top * model_px), full[1] - height)
+    cover = frame.crop((0, y0, width, y0 + height)).convert("RGB")
+
+    draw = ImageDraw.Draw(cover, "RGBA")
+    draw.line([(split, 0), (split, height)], fill=(0, 0, 0, 90), width=7)
+    draw.line([(split, 0), (split, height)], fill=(255, 255, 255, 255), width=4)
+    cx, cy, r = split, height // 2, 40
+    draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=(255, 255, 255, 255), outline=(0, 0, 0, 70), width=2)
+    for sign in (-1, 1):  # two arrowheads: the divider moves both ways
+        tip = cx + sign * 26
+        draw.polygon([(tip, cy), (tip - sign * 13, cy - 12), (tip - sign * 13, cy + 12)], fill=(34, 34, 34, 255))
+    font = _font(34)
+    for text, anchor_x, align in ((labels[0], 30, "left"), (labels[1], width - 30, "right")):
+        left, top_, right, bottom = draw.textbbox((0, 0), text, font=font)
+        w, h = right - left, bottom - top_
+        x = anchor_x if align == "left" else anchor_x - w - 28
+        draw.rounded_rectangle((x, 28, x + w + 28, 28 + h + 22), radius=(h + 22) // 2, fill=(255, 255, 255, 215))
+        draw.text((x + 14, 28 + 11 - top_), text, font=font, fill=(34, 34, 34, 255))
+    cover.save(out_dir / "cover.jpg", quality=92)
+    return "cover.jpg"
+
+
 def build(per_sample_report: Path, data_dir: Path, year: int, checkpoint: Path, stats: Stats, bundle: Path,
           cache: Path) -> dict:  # fmt: skip
     rows = json.loads(per_sample_report.read_text())["per_sample"]
@@ -233,6 +316,16 @@ def build(per_sample_report: Path, data_dir: Path, year: int, checkpoint: Path, 
     timeline, probs, shade = render_timeline(npz, checkpoint, stats, layers, cache, device)
     timeline.update(write_gif_and_filmstrip(timeline, layers, bundle / "images"))
     typical = timeline["filmstrip_days"][timeline["filmstrip_roles"].index("typical")]
+    active = [d for d in timeline["days"] if d["t"] in timeline["gif_days"]]
+    sat_dir = layers  # the timeline's swipe-compare and the cover both use these
+    timeline["satellite"] = satellite.write_satellite(active, npz, timeline["crop_box"], sat_dir, cache)
+    day = next((d for d in active if d["next_date"] == COVER_NEXT_DATE), None)
+    if day is None:
+        raise ValueError(f"Cover day {COVER_NEXT_DATE} is not a timeline day.")
+    cover_labels = ("Model map", f"Satellite, {_short(day['next_date'])}")
+    timeline["cover"] = write_cover(layers, sat_dir, day["t"], layers, labels=cover_labels)
+    timeline["cover_day"] = {"t": day["t"], "date": day["date"], "next_date": day["next_date"],
+                             "rule": COVER_RULE}  # fmt: skip
     model_day = select_model_day(load_fire(npz), sorted(probs), typical, timeline["crop_box"])
     timeline["model_view"] = views.render_model(npz, checkpoint, stats, cache, model_day, timeline["crop_box"], layers,
                                                 shade)  # fmt: skip
