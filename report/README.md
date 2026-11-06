@@ -8,7 +8,8 @@ and draws the report's figures and interactive components from it.
 report/
   scripts/   build steps (Python), run from the repository root
     metrics.py       every number, from the run outputs
-    imagery.py       the timeline fire: frames, GIF, filmstrip (fire chosen by a fixed rule)
+    imagery.py       the timeline fire: frames, GIF, filmstrip (fire chosen by a fixed rule), and the card cover
+    satellite.py     NASA GIBS true-colour images for each timeline day, resampled onto the model's grid
     views.py         model walk-through (inputs, encoder features) and the threshold-explainer day
     samples.py       fixed input-coverage rule for the model-view day
     wind.py          direction-only arrow geometry (east/north -> north-up image coordinates)
@@ -20,7 +21,7 @@ report/
   bundle/    generated output, committed
     site.json        all numbers the website report reads (schema_version, draft flag)
     manifest.json    every file's SHA-256 and size, the source commit, build time, schema version
-    images/          timeline frames, model views, explainer data, GIF, filmstrip
+    images/          timeline frames, satellite-<t>.jpg per day, cover.jpg, model views, explainer data, GIF, filmstrip
 ```
 
 ## Rebuilding
@@ -34,6 +35,19 @@ node report/figures/render.mjs --url <website report URL>         # README figur
 The imagery steps also need the converted fires (`datasets/processed/wsts/`), the supervised checkpoint
 (`outputs/modal/unet-sup-02/checkpoints/best.pt`) and the training-year normalisation statistics
 (`outputs/modal/baselines-01/stats-2018-2019.json`); they run on CPU.
+
+## Satellite images and the cover
+
+The timeline's swipe-compare and the card cover use true-colour VIIRS images from NASA GIBS
+(`VIIRS_SNPP_CorrectedReflectance_TrueColor`), one per timeline day, for the day the forecast is about (`next_date`).
+`satellite.py` resamples each onto the timeline crop's 375 m grid, so a pixel lines up with the maps; the unit tests check
+the geometry without network access. **The first build fetches about 66 small images over the network** (raw responses
+are cached in `/tmp/fireline-cache/satellite/`, so a rebuild does not fetch twice). Each image is a daily mosaic, not the
+overpass of the fire detections, and smoke or cloud can hide the ground and the fire front. Display only: nothing in the
+model or metrics uses them. Credit and terms: `LICENSES/NASA-GIBS.md`; provenance is in `timeline.satellite`.
+
+The cover (`images/cover.jpg`) is the swipe view for one day, chosen by eye (`COVER_NEXT_DATE` in `imagery.py`, recorded
+in `timeline.cover_day`): terrain map left, satellite right, the fire layers over both, divider at 50%.
 
 The model walk-through uses the timeline day nearest in calendar days to the filmstrip's median-F1 **typical** day,
 with ties going to the earlier date, subject to a fixed input-coverage gate: each of the five input days must have
